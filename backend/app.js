@@ -39,7 +39,7 @@ const authenticateToken = (req, res, next) => {
 
 // User Registration (Attendee or Speaker)
 app.post("/register", async (req, res) => {
-    const { fullname, email, phone, affiliation, password, userType, areaOfInterest } = req.body;
+    const { fullname, email, phone, affiliation, password, userType, areaOfInterest, bio } = req.body;
 
     // Ensure `userType` is valid
     if (!userType || (userType !== "attendee" && userType !== "speaker")) {
@@ -62,9 +62,6 @@ app.post("/register", async (req, res) => {
         }
         user = await attendeeModel.create({ fullname, email, phone, affiliation, password: hashedPassword, areaOfInterest });
     } else {
-        if (!topic || typeof topic !== "string") {
-            return res.status(400).json({ error: "topic must be a string" });
-        }
         user = await speakerModel.create({ fullname, email, phone, affiliation, password: hashedPassword, bio });
     }
 

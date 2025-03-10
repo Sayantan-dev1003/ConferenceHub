@@ -116,14 +116,14 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
 
                     {/* Close Button */}
                     <button
-                        className="absolute top-6 right-6 text-white cursor-pointer text-xl font-bold"
+                        className="relative bottom-14 left-68 text-white cursor-pointer text-xl font-bold"
                         onClick={() => setIsSignupOpen(false)}
                     >
                         ✖
                     </button>
 
                     {/* User Type Selection */}
-                    <div className="flex gap-4 mb-6 items-start">
+                    <div className="flex gap-4 mb-6 items-start openSans">
                         <button
                             className={`px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer hover:scale-105 ${userType === "attendee"
                                 ? "bg-blue-400 text-white"
@@ -151,7 +151,7 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                     {success && <p className="text-green-500">{success}</p>}
 
                     {/* Forms */}
-                    <form className="w-full flex flex-col gap-3 text-gray-500" onSubmit={handleSubmit}>
+                    <form className="w-full flex flex-col gap-3 text-gray-500 openSans" onSubmit={handleSubmit}>
                         <input
                             type="text"
                             name="fullname"
