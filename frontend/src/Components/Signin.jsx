@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
-import Signup from "./Signup";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 
-export default function SignIn({ setIsSigninOpen, setIsSignupOpen }) {
+const SignIn = ({ setIsSignupOpen, setIsSigninOpen }) => {
     const [userType, setUserType] = useState("attendee");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const navigate = useNavigate(); // Added useNavigate hook
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -24,7 +25,7 @@ export default function SignIn({ setIsSigninOpen, setIsSignupOpen }) {
             console.log("Login successful:", response.data);
             alert(`Login successful as ${userType}`);
             setIsSigninOpen(false);
-            navigate('/feed'); // Navigate to /feed after successful login
+            navigate('/feed');
         } catch (err) {
             setError(err.response?.data || "Invalid email or password. Please try again.");
         }
@@ -67,11 +68,17 @@ export default function SignIn({ setIsSigninOpen, setIsSignupOpen }) {
                     </div>
 
                     <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full openSans">
-                        <input type="email" placeholder="Email Address" className="p-2 border-2 border-blue-300 rounded-lg outline-none focus:border-blue-500"
-                            value={email} onChange={(e) => setEmail(e.target.value)} required />
+                        <div className="relative">
+                            <FontAwesomeIcon icon={faEnvelope} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                            <input type="email" placeholder="Email Address" className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none focus:border-blue-500"
+                                value={email} onChange={(e) => setEmail(e.target.value)} required />
+                        </div>
 
-                        <input type="password" placeholder="Password" className="p-2 border-2 border-blue-300 rounded-lg outline-none focus:border-blue-500"
-                            value={password} onChange={(e) => setPassword(e.target.value)} required />
+                        <div className="relative">
+                            <FontAwesomeIcon icon={faLock} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                            <input type="password" placeholder="Password" className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none focus:border-blue-500"
+                                value={password} onChange={(e) => setPassword(e.target.value)} required />
+                        </div>
 
                         {error && <p className="text-red-500 text-center">{error}</p>}
 
@@ -84,7 +91,8 @@ export default function SignIn({ setIsSigninOpen, setIsSignupOpen }) {
                 </div>
             </section>
 
-            {setIsSignupOpen && <Signup setIsSignupOpen={setIsSignupOpen} setIsSigninOpen={setIsSigninOpen} />}
         </>
     );
-}
+};
+
+export default SignIn;

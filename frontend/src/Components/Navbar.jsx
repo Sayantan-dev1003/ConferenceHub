@@ -3,14 +3,15 @@ import { Link as ScrollLink } from 'react-scroll';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import Signup from "../Components/Signup";
+import Signin from "../Components/Signin";
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSignupOpen, setIsSignupOpen] = useState(false);
+  const [isSigninOpen, setIsSigninOpen] = useState(false);
 
   return (
     <>
-
       <nav className="bg-[rgba(17,22,28,0.8)] fixed w-full z-50 py-3.5 px-6 montserrat text-lg shadow-md backdrop-blur-lg">
         <div className="container mx-auto flex justify-between items-center">
           <ScrollLink to="home" smooth={true} className="text-3xl font-bold text-white moonDance cursor-pointer">
@@ -58,7 +59,9 @@ const Navbar = () => {
           </div>
         </div>
       </nav>
-      {isSignupOpen && <Signup setIsSignupOpen={setIsSignupOpen} />}
+
+      {isSignupOpen && <Signup setIsSignupOpen={setIsSignupOpen} setIsSigninOpen={setIsSigninOpen} />}
+      {isSigninOpen && <Signin setIsSignupOpen={setIsSignupOpen} setIsSigninOpen={setIsSigninOpen} />}
     </>
   );
 };
