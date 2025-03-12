@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import Navbar from '../Components/Navbar'
 import CreateCon from "../assets/CreateConf.avif"
-import SignIn from '../Components/Signin' 
+import OrganiserSignup from '../Components/OrganiserSignup'
+import OrganiserSignin from '../Components/OrganiserSignin'
 
 const CreateConf = () => {
+    const [isSignupOpen, setIsSignupOpen] = useState(false);
     const [isSigninOpen, setIsSigninOpen] = useState(false);
 
     return (
@@ -43,7 +45,8 @@ const CreateConf = () => {
                     </div>
                 </div>
             </section>
-            {isSigninOpen && <SignIn setIsSigninOpen={setIsSigninOpen} />}
+            {isSignupOpen && <OrganiserSignup setIsSignupOpen={setIsSignupOpen} setIsSigninOpen={setIsSigninOpen} />}
+            {isSigninOpen && <OrganiserSignin setIsSignupOpen={setIsSignupOpen} setIsSigninOpen={setIsSigninOpen} />}
         </>
     )
 }

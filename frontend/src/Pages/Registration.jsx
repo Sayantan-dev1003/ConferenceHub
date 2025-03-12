@@ -1,9 +1,11 @@
 import { useState } from "react";
 import Register from "../assets/registration.jpg";
 import Signup from "../Components/Signup";
+import Signin from "../Components/Signin";
 
 export default function Registration() {
     const [isSignupOpen, setIsSignupOpen] = useState(false);
+    const [isSigninOpen, setIsSigninOpen] = useState(false);
 
     return (
         <section className="w-full flex gap-12 items-start justify-start py-44 px-8 bg-gray-100 openSans">
@@ -33,7 +35,8 @@ export default function Registration() {
                 </button>
             </div>
 
-            {isSignupOpen && <Signup setIsSignupOpen={setIsSignupOpen} />}
+            {isSignupOpen && <Signup setIsSignupOpen={setIsSignupOpen} setIsSigninOpen={setIsSigninOpen} />}
+            {isSigninOpen && <Signin setIsSignupOpen={setIsSignupOpen} setIsSigninOpen={setIsSigninOpen} />}
         </section>
     );
 }

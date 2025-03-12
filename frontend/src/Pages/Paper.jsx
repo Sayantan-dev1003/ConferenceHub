@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import Navbar from '../Components/Navbar'
 import PaperConf from "../assets/Paper.jpeg"
-import SignIn from '../Components/Signin'
+import PaperSignup from '../Components/PaperSignup'
+import PaperSignIn from '../Components/PaperSignin'
 
 const Paper = () => {
+    const [isSignupOpen, setIsSignupOpen] = useState(false);
     const [isSigninOpen, setIsSigninOpen] = useState(false);
 
     return (
@@ -42,7 +44,8 @@ const Paper = () => {
                     </button>
                 </div>
             </section>
-            {isSigninOpen && <SignIn setIsSigninOpen={setIsSigninOpen} />}
+            {isSignupOpen && <PaperSignup setIsSignupOpen={setIsSignupOpen} setIsSigninOpen={setIsSigninOpen} />}
+            {isSigninOpen && <PaperSignIn setIsSignupOpen={setIsSignupOpen} setIsSigninOpen={setIsSigninOpen} />}
         </>
     )
 }

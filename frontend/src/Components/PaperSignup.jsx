@@ -4,9 +4,9 @@ import { faBuildingColumns, faEnvelope, faIdCard, faLightbulb, faLock, faPhone, 
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 
-const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
-    const [userType, setUserType] = useState("attendee");
-    const [formDataAttendee, setFormDataAttendee] = useState({
+const PaperSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
+    const [userType, setUserType] = useState("publisher");
+    const [formDataReviewer, setFormDataReviewer] = useState({
         fullname: "",
         email: "",
         phone: "",
@@ -15,7 +15,7 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
         password: "",
     });
 
-    const [formDataSpeaker, setFormDataSpeaker] = useState({
+    const [formDataPublisher, setFormDataPublisher] = useState({
         fullname: "",
         email: "",
         phone: "",
@@ -29,10 +29,10 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
 
     // Handle Input Change
     const handleChange = (e) => {
-        if (userType === "attendee") {
-            setFormDataAttendee({ ...formDataAttendee, [e.target.name]: e.target.value });
+        if (userType === "publisher") {
+            setFormDataPublisher({ ...formDataPublisher, [e.target.name]: e.target.value });
         } else {
-            setFormDataSpeaker({ ...formDataSpeaker, [e.target.name]: e.target.value });
+            setFormDataReviewer({ ...formDataReviewer, [e.target.name]: e.target.value });
         }
     };
 
@@ -43,17 +43,17 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
         setSuccess("");
 
         let payload;
-        if (userType === "attendee") {
+        if (userType === "reviewer") {
             payload = {
-                ...formDataAttendee,
+                ...formDataReviewer,
                 userType,
-                areaOfInterest: formDataAttendee.areaOfInterest.split(',').map(area => area.trim()),
+                areaOfInterest: formDataReviewer.areaOfInterest.split(',').map(area => area.trim()),
             };
         } else {
             payload = {
-                ...formDataSpeaker,
+                ...formDataPublisher,
                 userType,
-                bio: formDataSpeaker.bio,
+                bio: formDataPublisher.bio,
             };
         }
 
@@ -63,8 +63,8 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
             });
 
             setSuccess(response.data.message);
-            if (userType === "attendee") {
-                setFormDataAttendee({
+            if (userType === "reviewer") {
+                setFormDataReviewer({
                     fullname: "",
                     email: "",
                     phone: "",
@@ -73,7 +73,7 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                     password: "",
                 });
             } else {
-                setFormDataSpeaker({
+                setFormDataPublisher({
                     fullname: "",
                     email: "",
                     phone: "",
@@ -86,7 +86,7 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
             // Automatically navigate to /feed after success
             setTimeout(() => {
                 setIsSignupOpen(false);
-                navigate('/feed');
+                navigate('/paperDashboard');
             }, 2000);
         } catch (err) {
             setError(err.response?.data?.message || "Registration failed!");
@@ -96,7 +96,7 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
     // Close the modal when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (event.target.id === "signup-modal") {
+            if (event.target.id === "signup-paper-modal") {
                 setIsSignupOpen(false);
             }
         };
@@ -114,12 +114,12 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
     return (
         <>
             <section
-                id="signup-modal"
+                id="signup-paper-modal"
                 className="fixed top-0 left-0 w-full h-full flex items-center justify-center backdrop-blur-lg bg-[rgba(17,22,28,0.8)] z-50"
             >
                 <div className="w-[40vw] flex flex-col items-center justify-center bg-white shadow-lg rounded-xl p-8">
                     <h2 className="text-3xl font-bold text-blue-800 mt-2 text-center mb-6 montserrat">
-                        Event Registration
+                        Registration
                     </h2>
 
                     {/* Close Button */}
@@ -133,22 +133,22 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                     {/* User Type Selection */}
                     <div className="flex gap-4 mb-6 items-start openSans">
                         <button
-                            className={`px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer hover:scale-105 ${userType === "attendee"
+                            className={`px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer hover:scale-105 ${userType === "publisher"
                                 ? "bg-blue-400 text-white"
                                 : "bg-gray-200 text-gray-700"
                                 }`}
-                            onClick={() => setUserType("attendee")}
+                            onClick={() => setUserType("publisher")}
                         >
-                            Attendee
+                            Publisher
                         </button>
                         <button
-                            className={`px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer hover:scale-105 ${userType === "speaker"
+                            className={`px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer hover:scale-105 ${userType === "reviewer"
                                 ? "bg-blue-400 text-white"
                                 : "bg-gray-200 text-gray-700"
                                 }`}
-                            onClick={() => setUserType("speaker")}
+                            onClick={() => setUserType("reviewer")}
                         >
-                            Speaker
+                            Reviewer
                         </button>
                     </div>
 
@@ -165,7 +165,7 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                             <input
                                 type="text"
                                 name="fullname"
-                                value={userType === "attendee" ? formDataAttendee.fullname : formDataSpeaker.fullname}
+                                value={userType === "publisher" ? formDataPublisher.fullname : formDataReviewer.fullname}
                                 onChange={handleChange}
                                 placeholder="Full Name"
                                 className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
@@ -177,7 +177,7 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                             <input
                                 type="email"
                                 name="email"
-                                value={userType === "attendee" ? formDataAttendee.email : formDataSpeaker.email}
+                                value={userType === "publisher" ? formDataPublisher.email : formDataReviewer.email}
                                 onChange={handleChange}
                                 placeholder="Email Address"
                                 className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
@@ -189,7 +189,7 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                             <input
                                 type="tel"
                                 name="phone"
-                                value={userType === "attendee" ? formDataAttendee.phone : formDataSpeaker.phone}
+                                value={userType === "publisher" ? formDataPublisher.phone : formDataReviewer.phone}
                                 onChange={handleChange}
                                 placeholder="Phone Number"
                                 className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
@@ -201,7 +201,7 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                             <input
                                 type="text"
                                 name="affiliation"
-                                value={userType === "attendee" ? formDataAttendee.affiliation : formDataSpeaker.affiliation}
+                                value={userType === "publisher" ? formDataPublisher.affiliation : formDataReviewer.affiliation}
                                 onChange={handleChange}
                                 placeholder="Affiliation"
                                 className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
@@ -210,13 +210,13 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                         </div>
 
                         {/* Attendee-Specific Field */}
-                        {userType === "attendee" && (
+                        {userType === "reviewer" && (
                             <div className="relative">
                                 <FontAwesomeIcon icon={faLightbulb} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                 <input
                                     type="text"
                                     name="areaOfInterest"
-                                    value={formDataAttendee.areaOfInterest}
+                                    value={formDataReviewer.areaOfInterest}
                                     onChange={handleChange}
                                     placeholder="Area of Interest"
                                     className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
@@ -226,12 +226,12 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                         )}
 
                         {/* Speaker-Specific Field */}
-                        {userType === "speaker" && (
+                        {userType === "publisher" && (
                             <div className="relative">
                                 <FontAwesomeIcon icon={faIdCard} className="absolute left-4 top-4 text-gray-400" />
                                 <textarea
                                     name="bio"
-                                    value={formDataSpeaker.bio}
+                                    value={formDataPublisher.bio}
                                     onChange={handleChange}
                                     placeholder="Your Bio"
                                     className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
@@ -244,7 +244,7 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                             <input
                                 type="password"
                                 name="password"
-                                value={userType === "attendee" ? formDataAttendee.password : formDataSpeaker.password}
+                                value={userType === "publisher" ? formDataPublisher.password : formDataReviewer.password}
                                 onChange={handleChange}
                                 placeholder="Password"
                                 className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
@@ -267,7 +267,7 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                             type="submit"
                             className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg cursor-pointer transition-all duration-300 hover:scale-105"
                         >
-                            {userType === "attendee" ? "Register as Attendee" : "Register as Speaker"}
+                            {userType === "publisher" ? "Register as Publisher" : "Register as Reviewer"}
                         </button>
                     </form>
                 </div>
@@ -276,4 +276,4 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
     );
 };
 
-export default Signup;
+export default PaperSignup;
