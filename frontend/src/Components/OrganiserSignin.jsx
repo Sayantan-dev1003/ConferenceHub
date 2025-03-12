@@ -15,7 +15,7 @@ const OrganiserSignin = ({ setIsSignupOpen, setIsSigninOpen }) => {
         setError("");
 
         try {
-            const response = await axios.post("/login", {
+            const response = await axios.post("/organiser/login", {
                 email,
                 password,
             }, { withCredentials: true });
@@ -23,7 +23,7 @@ const OrganiserSignin = ({ setIsSignupOpen, setIsSigninOpen }) => {
             console.log("Login successful:", response.data);
             alert("Signin as Organiser.");
             setIsSigninOpen(false);
-            navigate('/conferenceDashboard');
+            navigate('/conference-dashboard');
         } catch (err) {
             setError(err.response?.data || "Invalid email or password. Please try again.");
         }

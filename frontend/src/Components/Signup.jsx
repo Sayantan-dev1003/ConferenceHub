@@ -72,6 +72,8 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                     areaOfInterest: "",
                     password: "",
                 });
+                setIsSignupOpen(false);
+                navigate('/attendee-dashboard');
             } else {
                 setFormDataSpeaker({
                     fullname: "",
@@ -81,13 +83,9 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                     bio: "",
                     password: "",
                 });
-            }
-
-            // Automatically navigate to /feed after success
-            setTimeout(() => {
                 setIsSignupOpen(false);
-                navigate('/feed');
-            }, 2000);
+                navigate('/speaker-dashboard');
+            }
         } catch (err) {
             setError(err.response?.data?.message || "Registration failed!");
         }

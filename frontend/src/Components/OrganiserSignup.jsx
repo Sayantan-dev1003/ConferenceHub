@@ -9,7 +9,7 @@ const OrganiserSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
         fullname: "",
         email: "",
         phone: "",
-        affiliation: "",
+        organisation: "",
         bio: "",
         password: "",
     });
@@ -35,7 +35,7 @@ const OrganiserSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
         };
 
         try {
-            const response = await axios.post("/register", payload, {
+            const response = await axios.post("/organiser/register", payload, {
                 headers: { "Content-Type": "application/json" },
             });
 
@@ -45,14 +45,14 @@ const OrganiserSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                 fullname: "",
                 email: "",
                 phone: "",
-                affiliation: "",
+                organisation: "",
                 bio: "",
                 password: "",
             });
 
             setTimeout(() => {
                 setIsSignupOpen(false);
-                navigate('/conferenceDashboard');
+                navigate('/conference-dashboard');
             }, 2000);
         } catch (err) {
             setError(err.response?.data?.message || "Registration failed!");
@@ -144,10 +144,10 @@ const OrganiserSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                             <FontAwesomeIcon icon={faBuildingColumns} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
                             <input
                                 type="text"
-                                name="affiliation"
-                                value={formDataOrganiser.affiliation}
+                                name="organisation"
+                                value={formDataOrganiser.organisation}
                                 onChange={handleChange}
-                                placeholder="Affiliation"
+                                placeholder="Organisation"
                                 className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
                                 required
                             />

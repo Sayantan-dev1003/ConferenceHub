@@ -25,7 +25,11 @@ const SignIn = ({ setIsSignupOpen, setIsSigninOpen }) => {
             console.log("Login successful:", response.data);
             alert(`Login successful as ${userType}`);
             setIsSigninOpen(false);
-            navigate('/feed');
+            if (userType === "attendee") {
+                navigate('/attendee-dashboard');
+            } else if (userType === "speaker") {
+                navigate('/speaker-dashboard');
+            }
         } catch (err) {
             setError(err.response?.data || "Invalid email or password. Please try again.");
         }

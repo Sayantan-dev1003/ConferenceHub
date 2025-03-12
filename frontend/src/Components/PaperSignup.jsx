@@ -20,7 +20,7 @@ const PaperSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
         email: "",
         phone: "",
         affiliation: "",
-        bio: "",
+        designation: "",
         password: "",
     });
     const [error, setError] = useState("");
@@ -53,12 +53,12 @@ const PaperSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
             payload = {
                 ...formDataPublisher,
                 userType,
-                bio: formDataPublisher.bio,
+                designation: formDataPublisher.designation,
             };
         }
 
         try {
-            const response = await axios.post("/register", payload, {
+            const response = await axios.post("/paper/register", payload, {
                 headers: { "Content-Type": "application/json" },
             });
 
@@ -72,22 +72,20 @@ const PaperSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                     areaOfInterest: "",
                     password: "",
                 });
+                setIsSignupOpen(false);
+                navigate('/reviewer-dashboard');
             } else {
                 setFormDataPublisher({
                     fullname: "",
                     email: "",
                     phone: "",
                     affiliation: "",
-                    bio: "",
+                    designation: "",
                     password: "",
                 });
-            }
-
-            // Automatically navigate to /feed after success
-            setTimeout(() => {
                 setIsSignupOpen(false);
-                navigate('/paperDashboard');
-            }, 2000);
+                navigate('/publisher-dashboard');
+            }
         } catch (err) {
             setError(err.response?.data?.message || "Registration failed!");
         }
@@ -209,7 +207,7 @@ const PaperSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                             />
                         </div>
 
-                        {/* Attendee-Specific Field */}
+                        {/* Reviewer-Specific Field */}
                         {userType === "reviewer" && (
                             <div className="relative">
                                 <FontAwesomeIcon icon={faLightbulb} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -225,18 +223,19 @@ const PaperSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                             </div>
                         )}
 
-                        {/* Speaker-Specific Field */}
+                        {/* Publisher-Specific Field */}
                         {userType === "publisher" && (
                             <div className="relative">
                                 <FontAwesomeIcon icon={faIdCard} className="absolute left-4 top-4 text-gray-400" />
-                                <textarea
-                                    name="bio"
-                                    value={formDataPublisher.bio}
+                                <input
+                                    type="text"
+                                    name="designation"
+                                    value={formDataReviewer.designation}
                                     onChange={handleChange}
-                                    placeholder="Your Bio"
+                                    placeholder="Designation"
                                     className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
                                     required
-                                ></textarea>
+                                />
                             </div>
                         )}
                         <div className="relative">

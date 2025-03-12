@@ -16,7 +16,7 @@ const PaperSignIn = ({ setIsSignupOpen, setIsSigninOpen }) => {
         setError("");
 
         try {
-            const response = await axios.post("/login", {
+            const response = await axios.post("/paper/login", {
                 email,
                 password,
                 role: userType,

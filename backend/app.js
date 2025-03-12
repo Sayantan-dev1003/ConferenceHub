@@ -9,6 +9,9 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import attendeeModel from "./models/attendeeModel.js";
 import speakerModel from "./models/speakerModel.js";
+import organiserModel from "./models/organiserModel.js";
+import publisherModel from "./models/publisherModel.js";
+import reviewerModel from "./models/reviewerModel.js";
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -93,6 +96,93 @@ app.post("/login", async (req, res) => {
     return res.status(200).json({ message: "Login Successful", role });
 });
 
+app.post("/organiser/register", async (req, res) => {
+    const { fullname, email, phone, organisation, bio, password } = req.body;
+
+    const existingOrganiser = await organiserModel.findOne({ $or: [{ email }, { fullname }] });
+
+    if (existingOrganiser) return res.status(401).json({ error: "Organiser already exists" });
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const organiser = await organiserModel.create({ fullname, email, phone, organisation, bio, password: hashedPassword });
+
+    const token = jwt.sign({ email: email, userid: organiser._id, userType: "organiser" }, "Sayantan");
+    res.cookie("token", token, { httpOnly: true });
+    res.status(201).json({ message: "Organiser registered successfully" });
+});
+
+app.post("/organiser/login", async (req, res) => {
+    const { email, password } = req.body;
+
+    const user = await organiserModel.findOne({ email });
+
+    if (!user) return res.status(401).json("Invalid email or password");
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json("Invalid email or password");
+
+    const token = jwt.sign({ email: email, userid: user._id, userType: "organiser" }, "Sayantan");
+    res.cookie("token", token, { httpOnly: true });
+
+    return res.status(200).json({ message: "Login Successful", userType: "organiser" });
+});
+
+app.post("/paper/register", async (req, res) => {
+    const { fullname, email, phone, affiliation, password, userType, areaOfInterest, designation } = req.body;
+
+    // Ensure `userType` is valid
+    if (!userType || (userType !== "publisher" && userType !== "reviewer")) {
+        return res.status(400).json({ error: "Invalid user type" });
+    }
+
+    const existingUser = userType === "publisher"
+        ? await publisherModel.findOne({ $or: [{ email }, { fullname }] })
+        : await reviewerModel.findOne({ $or: [{ email }, { fullname }] });
+
+    if (existingUser) return res.status(401).json({ error: "User already exists" });
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    let user;
+    if (userType === "reviewer") {
+        if (!Array.isArray(areaOfInterest)) {
+            return res.status(400).json({ error: "areaOfInterest must be an array" });
+        }
+        user = await reviewerModel.create({ fullname, email, phone, affiliation, password: hashedPassword, areaOfInterest });
+    } else {
+        user = await publisherModel.create({ fullname, email, phone, affiliation, password: hashedPassword, designation });
+    }
+
+    const token = jwt.sign({ email: email, userid: user._id, userType: userType }, "Sayantan");
+    res.cookie("token", token, { httpOnly: true });
+    res.status(201).json({ message: "User registered successfully" });
+});
+
+app.post("/paper/login", async (req, res) => {
+    const { email, password, role } = req.body;
+
+    if (!role || (role !== "publisher" && role !== "reviewer")) {
+        return res.status(400).json({ error: "Invalid role" });
+    }
+
+    const user = role === "publisher"
+        ? await publisherModelModel.findOne({ email })
+        : await reviewerModelModel.findOne({ email });
+
+    if (!user) return res.status(401).json("Invalid email or password");
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json("Invalid email or password");
+
+    const token = jwt.sign({ email: email, userid: user._id, role: role }, "Sayantan");
+    res.cookie("token", token, { httpOnly: true });
+
+    return res.status(200).json({ message: "Login Successful", role });
+});
+
 // User Logout
 app.get("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
@@ -113,10 +203,6 @@ app.get("/speaker-dashboard", authenticateToken, async (req, res) => {
     const speaker = await speakerModel.findById(req.user.userid);
     if (!speaker) return res.sendStatus(404);
     res.json(speaker);
-});
-
-app.get("/feed", authenticateToken, (req, res) => {
-    res.send("feed");
 });
 
 // Catch-all route to serve the frontend
