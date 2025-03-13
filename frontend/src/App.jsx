@@ -7,9 +7,6 @@ import PublisherDashboard from './Pages/PublisherDashboard'
 import ReviewerDashboard from './Pages/ReviewerDashboard'
 
 import ConferenceDashboard from './Pages/ConferenceDashboard'
-import ConferenceForm1 from './Components/Conference/ConferenceForm1'
-import ConferenceForm2 from './Components/Conference/ConferenceForm2'
-import ConferenceForm3 from './Components/Conference/ConferenceForm3'
 import ManageConference from './Components/Conference/ManageConference'
 import ViewSubmissions from './Components/Conference/ViewSubmissions'
 import AssignReviewers from './Components/Conference/AssignReviewers'
@@ -17,6 +14,7 @@ import ManageReviewers from './Components/Conference/ManageReviewers'
 import AttendeeManagement from './Components/Conference/AttendeeManagement'
 import SpeakerManagement from './Components/Conference/SpeakerManagement'
 import Settings from './Components/Conference/Settings'
+import ConferenceForm from './Components/Conference/ConferenceForm'
 
 const App = () => {
   return (
@@ -27,9 +25,7 @@ const App = () => {
         <Route path='/speaker-dashboard' element={<SpeakerDasboard />}></Route>
 
         <Route path='/conference-dashboard' element={<ConferenceDashboard />}></Route>
-        <Route path='/create-conference/1' element={<ConferenceForm1 />}></Route>
-        <Route path='/create-conference/2' element={<ConferenceForm2 />}></Route>
-        <Route path='/create-conference/3' element={<ConferenceForm3 />}></Route>
+        <Route path='/create-conference' element={<ConferenceForm />}></Route>
         <Route path='/manage-conference' element={<ManageConference />}></Route>
         <Route path='/view-submissions' element={<ViewSubmissions />}></Route>
         <Route path='/assign-reviewers' element={<AssignReviewers />}></Route>

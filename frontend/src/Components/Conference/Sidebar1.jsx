@@ -11,7 +11,7 @@ const Sidebar1 = () => {
             <Link to="/conference-dashboard" className="block p-2 hover:bg-gray-700 rounded">Dashboard</Link>
           </li>
           <li className="my-2">
-            <Link to="/create-conference/1" className="block p-2 hover:bg-gray-700 rounded">Create Conference</Link>
+            <Link to="/create-conference" className="block p-2 hover:bg-gray-700 rounded">Create Conference</Link>
           </li>
           <li className="my-2">
             <Link to="/manage-conference" className="block p-2 hover:bg-gray-700 rounded">Manage Conferences</Link>
