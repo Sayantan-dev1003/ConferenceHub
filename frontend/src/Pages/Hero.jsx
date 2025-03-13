@@ -10,6 +10,7 @@ import Footer from '../Components/Footer'
 const Hero = () => {
   return (
     <>
+    <div className='flex flex-col w-full'>
       <div id='home'><Home /></div>
       <div id='about'><About /></div>
       <div id='event-registration'><Registration /></div>
@@ -17,6 +18,7 @@ const Hero = () => {
       <div id='paper-submission'><Paper /></div>
       <div id='contact'><Contact /></div>
       <div id='footer'><Footer /></div>
+    </div>
     </>
   )
 }
