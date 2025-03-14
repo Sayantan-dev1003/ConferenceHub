@@ -8,6 +8,7 @@ import ReviewerDashboard from './Pages/ReviewerDashboard'
 
 import ConferenceDashboard from './Pages/ConferenceDashboard'
 import ManageConference from './Components/Conference/ManageConference'
+import ConferenceDetail from './Components/Conference/ConferenceDetail';
 import ViewSubmissions from './Components/Conference/ViewSubmissions'
 import AssignReviewers from './Components/Conference/AssignReviewers'
 import ManageReviewers from './Components/Conference/ManageReviewers'
@@ -27,6 +28,7 @@ const App = () => {
         <Route path='/conference-dashboard' element={<ConferenceDashboard />}></Route>
         <Route path='/create-conference' element={<ConferenceForm />}></Route>
         <Route path='/manage-conference' element={<ManageConference />}></Route>
+        <Route path="/conference/:id" element={<ConferenceDetail />} />
         <Route path='/view-submissions' element={<ViewSubmissions />}></Route>
         <Route path='/assign-reviewers' element={<AssignReviewers />}></Route>
         <Route path='/manage-reviewers' element={<ManageReviewers />}></Route>

@@ -17,6 +17,12 @@ const Sidebar1 = () => {
             <Link to="/manage-conference" className="block p-2 hover:bg-gray-700 rounded">Manage Conferences</Link>
           </li>
           <li className="my-2">
+            <Link to="/attendee-management" className="block p-2 hover:bg-gray-700 rounded">Attendee Management</Link>
+          </li>
+          <li className="my-2">
+            <Link to="/speaker-management" className="block p-2 hover:bg-gray-700 rounded">Speaker Management</Link>
+          </li>
+          <li className="my-2">
             <Link to="/view-submissions" className="block p-2 hover:bg-gray-700 rounded">View Submissions</Link>
           </li>
           <li className="my-2">
@@ -24,12 +30,6 @@ const Sidebar1 = () => {
           </li>
           <li className="my-2">
             <Link to="/manage-reviewers" className="block p-2 hover:bg-gray-700 rounded">Manage Reviewers</Link>
-          </li>
-          <li className="my-2">
-            <Link to="/attendee-management" className="block p-2 hover:bg-gray-700 rounded">Attendee Management</Link>
-          </li>
-          <li className="my-2">
-            <Link to="/speaker-management" className="block p-2 hover:bg-gray-700 rounded">Speaker Management</Link>
           </li>
           <li className="my-2">
             <Link to="/settings" className="block p-2 hover:bg-gray-700 rounded">Settings</Link>

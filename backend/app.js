@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import bodyParser from "body-parser";
 import jwt from 'jsonwebtoken';
 import path from 'path';
+import multer from 'multer';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import attendeeModel from "./models/attendeeModel.js";
@@ -12,6 +13,7 @@ import speakerModel from "./models/speakerModel.js";
 import organiserModel from "./models/organiserModel.js";
 import publisherModel from "./models/publisherModel.js";
 import reviewerModel from "./models/reviewerModel.js";
+import conferenceModel from "./models/conferenceModel.js"
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -20,6 +22,7 @@ const __dirname = dirname(__filename);
 // Middleware
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'dist')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -27,6 +30,18 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cookieParser());
+
+// Multer setup for file uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname));
+    },
+});
+
+const upload = multer({ storage });
 
 // Middleware for token verification
 const authenticateToken = (req, res, next) => {
@@ -109,12 +124,12 @@ app.post("/organiser/register", async (req, res) => {
     const organiser = await organiserModel.create({ fullname, email, phone, organisation, bio, password: hashedPassword });
 
     const token = jwt.sign({ email: email, userid: organiser._id, userType: "organiser" }, "Sayantan");
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("token", token, { httpOnly: false, sameSite: 'Lax' });
     res.status(201).json({ message: "Organiser registered successfully" });
 });
 
 app.post("/organiser/login", async (req, res) => {
-    const { email, password } = req.body;
+    const { email, fullname, password } = req.body;
 
     const user = await organiserModel.findOne({ email });
 
@@ -124,9 +139,9 @@ app.post("/organiser/login", async (req, res) => {
     if (!isMatch) return res.status(401).json("Invalid email or password");
 
     const token = jwt.sign({ email: email, userid: user._id, userType: "organiser" }, "Sayantan");
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("token", token, { httpOnly: false, sameSite: 'Lax' });
 
-    return res.status(200).json({ message: "Login Successful", userType: "organiser" });
+    return res.status(200).json({ message: "Login Successful", userType: "organiser", fullname: user.fullname });
 });
 
 app.post("/paper/register", async (req, res) => {
@@ -183,8 +198,102 @@ app.post("/paper/login", async (req, res) => {
     return res.status(200).json({ message: "Login Successful", role });
 });
 
+// Conference Registration Endpoint
+app.post("/api/conference", upload.fields([{ name: 'logo' }, { name: 'banner' }]), async (req, res) => {
+    const {
+        title,
+        description,
+        type,
+        category,
+        startDate,
+        endDate,
+        startTime,
+        endTime,
+        mode,
+        venue,
+        virtualLink,
+        ticketType,
+        ticketPrice,
+        registrationDeadline,
+        keynoteSpeakers,
+        targetAudience,
+        socialMediaLinks,
+    } = req.body;
+
+    // Validate required fields
+    if (!title || !description || !type || !category || !startDate || !endDate || !startTime || !endTime) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    // Create a new conference entry
+    const conferenceData = {
+        title,
+        description,
+        type,
+        category,
+        logo: req.files['logo'] ? req.files['logo'][0].path : null,
+        banner: req.files['banner'] ? req.files['banner'][0].path : null,
+        startDate,
+        endDate,
+        startTime,
+        endTime,
+        mode,
+        venue,
+        virtualLink,
+        ticketType,
+        ticketPrice,
+        registrationDeadline,
+        keynoteSpeakers,
+        targetAudience,
+        socialMediaLinks,
+    };
+
+    try {
+        const newConference = await conferenceModel.create(conferenceData);
+        res.status(201).json({ message: "Conference created successfully", conference: newConference });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to create conference" });
+    }
+});
+
+// Get all conferences
+app.get("/api/conferences", async (req, res) => {
+    try {
+        const conferences = await conferenceModel.find();
+        res.json(conferences);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch conferences" });
+    }
+});
+
+// Get a specific conference by ID
+app.get("/api/conference/:id", async (req, res) => {
+    try {
+        const conference = await conferenceModel.findById(req.params.id);
+        if (!conference) return res.status(404).json({ error: "Conference not found" });
+        res.json(conference);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch conference" });
+    }
+});
+
+// Delete a conference
+app.delete("/api/conference/:id", async (req, res) => {
+    try {
+        const conference = await conferenceModel.findByIdAndDelete(req.params.id);
+        if (!conference) return res.status(404).json({ error: "Conference not found" });
+        res.json({ message: "Conference deleted successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to delete conference" });
+    }
+});
+
 // User Logout
-app.get("/logout", (req, res) => {
+app.post("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
     res.redirect("/");
 });
