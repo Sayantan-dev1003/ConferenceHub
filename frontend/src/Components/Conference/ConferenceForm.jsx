@@ -78,7 +78,7 @@ const ConferenceForm = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex openSans">
+    <div className="w-full min-h-screen flex justify-end items-start openSans">
       <Sidebar1 />
       <div className="w-4/5 rounded-xl py-6 px-28">
         <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-2 montserrat">
