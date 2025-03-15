@@ -138,15 +138,15 @@ const ConferenceForm = () => {
                     className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-blue-400 transition duration-200"
                   >
                     <option value="">Select a type</option>
-                    <option value="keynote">Keynotes</option>
-                    <option value="panel">Panel Discussion</option>
-                    <option value="workshop">Workshop</option>
-                    <option value="paper">Paper Submission</option>
-                    <option value="qa">Q&A Session</option>
-                    <option value="seminar">Seminar</option>
-                    <option value="roundtable">Roundtable Discussion</option>
-                    <option value="networking">Networking Event</option>
-                    <option value="training">Training Session</option>
+                    <option value="Keynotes">Keynotes</option>
+                    <option value="Panel Discussion">Panel Discussion</option>
+                    <option value="Workshop">Workshop</option>
+                    <option value="Paper Submission">Paper Submission</option>
+                    <option value="Q&A Session">Q&A Session</option>
+                    <option value="Seminar">Seminar</option>
+                    <option value="Roundtable Discussion">Roundtable Discussion</option>
+                    <option value="Networking Event">Networking Event</option>
+                    <option value="Training Session">Training Session</option>
                   </select>
                 </div>
 
@@ -163,12 +163,12 @@ const ConferenceForm = () => {
                     className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-blue-400 transition duration-200"
                   >
                     <option value="">Select a category</option>
-                    <option value="tech">Technology & Innovation</option>
-                    <option value="business">Business & Entrepreneurship</option>
-                    <option value="science">Science & Research</option>
-                    <option value="health">Healthcare & Medicine</option>
-                    <option value="education">Education & Learning</option>
-                    <option value="art">Arts & Culture</option>
+                    <option value="Technology & Innovation">Technology & Innovation</option>
+                    <option value="Business & Entrepreneurship">Business & Entrepreneurship</option>
+                    <option value="Science & Research">Science & Research</option>
+                    <option value="Healthcare & Medicine">Healthcare & Medicine</option>
+                    <option value="Education & Learning">Education & Learning</option>
+                    <option value="Arts & Culture">Arts & Culture</option>
                   </select>
                 </div>
               </div>
