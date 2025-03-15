@@ -374,21 +374,21 @@ app.get("/logout", (req, res) => {
     res.redirect("/");
 });
 
-// Get Attendee Details
-app.get("/attendee-dashboard", authenticateToken, async (req, res) => {
-    if (req.user.role !== "attendee") return res.sendStatus(403);
-    const attendee = await attendeeModel.findById(req.user.userid);
-    if (!attendee) return res.sendStatus(404);
-    res.json(attendee);
-});
+// // Get Attendee Details
+// app.get("/attendee-dashboard", authenticateToken, async (req, res) => {
+//     if (req.user.role !== "attendee") return res.sendStatus(403);
+//     const attendee = await attendeeModel.findById(req.user.userid);
+//     if (!attendee) return res.sendStatus(404);
+//     res.json(attendee);
+// });
 
-// Get Speaker Details
-app.get("/speaker-dashboard", authenticateToken, async (req, res) => {
-    if (req.user.role !== "speaker") return res.sendStatus(403);
-    const speaker = await speakerModel.findById(req.user.userid);
-    if (!speaker) return res.sendStatus(404);
-    res.json(speaker);
-});
+// // Get Speaker Details
+// app.get("/speaker-dashboard", authenticateToken, async (req, res) => {
+//     if (req.user.role !== "speaker") return res.sendStatus(403);
+//     const speaker = await speakerModel.findById(req.user.userid);
+//     if (!speaker) return res.sendStatus(404);
+//     res.json(speaker);
+// });
 
 // Catch-all route to serve the frontend
 app.get("*", (req, res) => {

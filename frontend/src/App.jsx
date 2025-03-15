@@ -1,7 +1,13 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Hero from './Pages/Hero'
+
 import AttendeeDashBoard from './Pages/AttendeeDashBoard'
+import Events from "./Components/Attendee/Events"
+import ExploreEvents from "./Components/Attendee/ExploreEvents"
+import Feedback from "./Components/Attendee/Feedback"
+import SettingsA from "./Components/Attendee/Settings"
+
 import SpeakerDasboard from './Pages/SpeakerDasboard'
 import PublisherDashboard from './Pages/PublisherDashboard'
 import ReviewerDashboard from './Pages/ReviewerDashboard'
@@ -23,7 +29,13 @@ const App = () => {
     <>
       <Routes>
         <Route path='/' element={<Hero />}></Route>
+
         <Route path='/attendee-dashboard' element={<AttendeeDashBoard />}></Route>
+        <Route path='/attendee-events' element={<Events />}></Route>
+        <Route path='/attendee-explore' element={<ExploreEvents />}></Route>
+        <Route path='/attendee-feedback' element={<Feedback />}></Route>
+        <Route path='/attendee-settings' element={<SettingsA />}></Route>
+
         <Route path='/speaker-dashboard' element={<SpeakerDasboard />}></Route>
 
         <Route path='/conference-dashboard' element={<ConferenceDashboard />}></Route>

@@ -1,7 +1,7 @@
 import React from 'react'
-import Sidebar2 from '../Components/Attendee/Sidebar2'
+import Sidebar2 from './Sidebar2'
 
-const AttendeeDashBoard = () => {
+const Events = () => {
   return (
     <div className='w-full min-h-screen flex justify-end items-start openSans'>
         <Sidebar2 />
@@ -12,4 +12,4 @@ const AttendeeDashBoard = () => {
   )
 }
 
-export default AttendeeDashBoard
+export default Events
