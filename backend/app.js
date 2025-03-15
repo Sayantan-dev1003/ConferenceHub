@@ -280,6 +280,82 @@ app.get("/api/conference/:id", async (req, res) => {
     }
 });
 
+// Update a conference
+app.put("/api/conference/:id", upload.fields([{ name: 'logo' }, { name: 'banner' }]), async (req, res) => {
+    const { id } = req.params;
+    const {
+        title,
+        description,
+        type,
+        category,
+        startDate,
+        endDate,
+        startTime,
+        endTime,
+        mode,
+        venue,
+        virtualLink,
+        ticketType,
+        ticketPrice,
+        registrationDeadline,
+        keynoteSpeakers,
+        targetAudience,
+        socialMediaLinks,
+    } = req.body;
+
+    // Validate required fields
+    if (!title || !description || !type || !category || !startDate || !endDate || !startTime || !endTime) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    // Find the conference by ID
+    try {
+        const conference = await conferenceModel.findById(id);
+        if (!conference) return res.status(404).json({ error: "Conference not found" });
+
+        // Update the conference data
+        conference.title = title;
+        conference.description = description;
+        conference.type = type;
+        conference.category = category;
+        conference.startDate = startDate;
+        conference.endDate = endDate;
+        conference.startTime = startTime;
+        conference.endTime = endTime;
+        conference.mode = mode;
+        conference.venue = mode === 'offline' ? venue : null; // Only set venue if offline
+        conference.virtualLink = mode === 'online' ? virtualLink : null; // Only set virtual link if online
+        conference.ticketType = ticketType;
+
+        // Handle ticketPrice based on ticketType
+        if (ticketType === 'paid') {
+            conference.ticketPrice = ticketPrice ? Number(ticketPrice) : null; // Convert to number or set to null
+        } else {
+            conference.ticketPrice = null; // Set to null if ticketType is free
+        }
+
+        conference.registrationDeadline = registrationDeadline;
+        conference.keynoteSpeakers = keynoteSpeakers;
+        conference.targetAudience = targetAudience;
+        conference.socialMediaLinks = socialMediaLinks;
+
+        // Handle file uploads
+        if (req.files['logo']) {
+            conference.logo = req.files['logo'][0].path; // Update logo if a new file is uploaded
+        }
+        if (req.files['banner']) {
+            conference.banner = req.files['banner'][0].path; // Update banner if a new file is uploaded
+        }
+
+        // Save the updated conference
+        await conference.save();
+        res.status(200).json({ message: "Conference updated successfully", conference });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to update conference" });
+    }
+});
+
 // Delete a conference
 app.delete("/api/conference/:id", async (req, res) => {
     try {
@@ -293,7 +369,7 @@ app.delete("/api/conference/:id", async (req, res) => {
 });
 
 // User Logout
-app.post("/logout", (req, res) => {
+app.get("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
     res.redirect("/");
 });

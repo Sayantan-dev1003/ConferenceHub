@@ -56,7 +56,7 @@ const ConferenceDetail = () => {
             </div>
             <div className='w-full p-6 rounded-xl bg-white shadow-md'>
               <p className='text-base text-black font-medium'>All that you need to know about {conference.title}</p>
-              <p className='text-sm text-gray-600'>{conference.description}</p>
+              <p style={{ whiteSpace: "pre-line" }} className='text-sm text-gray-600'>{conference.description}</p>
             </div>
           </div>
           <div className='w-1/3'>
