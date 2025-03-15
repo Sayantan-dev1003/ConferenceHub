@@ -13,7 +13,6 @@ const ConferenceCard = ({ conference }) => {
     return (
         <div className="w-4/5 bg-white shadow-md rounded-xl overflow-hidden cursor-pointer openSans transition duration-200 hover:bg-blue-50 hover:scale-105 hover:shadow-lg" onClick={handleClick}>
             <div className="relative w-full">
-                {console.log(conference.banner)}
                 <img src={`/${conference.banner}`} alt={conference.title} className="w-full h-32 object-cover" />
                 <img
                     src={`/${conference.logo}`}
@@ -33,7 +32,7 @@ const ConferenceCard = ({ conference }) => {
                         <h3 className="text-2xl font-extrabold uppercase montserrat">{conference.title}</h3>
                         <span className="text-gray-400 relative bottom-1 text-base mt-2 border border-dotted border-gray-400 rounded-full px-4">{conference.category}</span>
                     </div>
-                    <p className={`text-${new Date() < new Date(conference.registrationDeadline) ? 'red-600' : 'gray-400'} text-base relative bottom-1 mt-2 border border-dotted border-${new Date() < new Date(conference.registrationDeadline) ? 'red-600' : 'gray-400'} rounded-full px-4`}>
+                    <p className={`text-${new Date() < new Date(conference.registrationDeadline) ? 'red-600' : 'gray-400'} text-xs relative bottom-1 mt-2 border border-dotted border-${new Date() < new Date(conference.registrationDeadline) ? 'red-600' : 'gray-400'} rounded-full px-4`}>
                         {new Date() < new Date(conference.registrationDeadline) ? 'LIVE' : 'OVER'}
                     </p>
                 </div>

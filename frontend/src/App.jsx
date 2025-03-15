@@ -16,6 +16,7 @@ import AttendeeManagement from './Components/Conference/AttendeeManagement'
 import SpeakerManagement from './Components/Conference/SpeakerManagement'
 import Settings from './Components/Conference/Settings'
 import ConferenceForm from './Components/Conference/ConferenceForm'
+import EditConference from "./Components/Conference/EditConference"
 
 const App = () => {
   return (
@@ -29,6 +30,7 @@ const App = () => {
         <Route path='/create-conference' element={<ConferenceForm />}></Route>
         <Route path='/manage-conference' element={<ManageConference />}></Route>
         <Route path="/conference/:id" element={<ConferenceDetail />} />
+        <Route path="/edit-conference/:id" element={<EditConference />} />
         <Route path='/view-submissions' element={<ViewSubmissions />}></Route>
         <Route path='/assign-reviewers' element={<AssignReviewers />}></Route>
         <Route path='/manage-reviewers' element={<ManageReviewers />}></Route>

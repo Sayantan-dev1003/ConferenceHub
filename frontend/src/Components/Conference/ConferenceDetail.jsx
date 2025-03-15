@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendarAlt, faMapMarkerAlt, faArrowRight, faGlobe, faUser } from '@fortawesome/free-solid-svg-icons';
 import Sidebar1 from './Sidebar1';
 
 const ConferenceDetail = () => {
@@ -21,23 +23,6 @@ const ConferenceDetail = () => {
     fetchConference();
   }, [id]);
 
-  const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this conference?')) {
-      try {
-        const response = await fetch(`/api/conference/${id}`, {
-          method: 'DELETE',
-        });
-        if (response.ok) {
-          navigate('/manage-conference');
-        } else {
-          console.error('Error deleting conference');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    }
-  };
-
   const handleEdit = () => {
     navigate(`/edit-conference/${id}`);
   };
@@ -47,72 +32,63 @@ const ConferenceDetail = () => {
   }
 
   return (
-    <div className="w-full min-h-screen flex justify-end items-start">
+    <div className="w-full min-h-screen flex justify-end items-start openSans">
       <Sidebar1 />
-      <div className="w-4/5 min-h-screen px-8 pb-8 flex flex-col justify-center items-center gap-4 overflow-y-auto">
-        <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-2 montserrat">
-          Conference Details
-        </h2>
-        <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-2xl">
-          <h3 className="text-2xl font-bold text-gray-800 mb-4">{conference.title}</h3>
-          <p className="text-gray-600 mb-4">{conference.description}</p>
-          <div className="mb-4">
-            <strong>Type:</strong> {conference.type}
-          </div>
-          <div className="mb-4">
-            <strong>Category:</strong> {conference.category}
-          </div>
-          <div className="mb-4">
-            <strong>Start Date:</strong> {new Date(conference.startDate).toLocaleDateString()}
-          </div>
-          <div className="mb-4">
-            <strong>End Date:</strong> {new Date(conference.endDate).toLocaleDateString()}
-          </div>
-          <div className="mb-4">
-            <strong>Mode:</strong> {conference.mode}
-          </div>
-          {conference.mode === 'offline' ? (
-            <div className="mb-4">
-              <strong>Venue:</strong> {conference.venue}
+      <div className="w-4/5 min-h-screen flex flex-col overflow-y-auto">
+        <div className='w-full overflow-hidden'>
+          <img src={`/${conference.banner}`} alt={conference.title} className="w-full h-80 object-cover" />
+        </div>
+        <div className='w-full flex p-6 bg-gray-100 gap-6'>
+          <div className='w-2/3 flex flex-col gap-6'>
+            <div className='w-full p-6 rounded-xl bg-white shadow-md'>
+              <div className='w-full flex gap-4 items-center mb-4'>
+                <img src={`/${conference.logo}`} alt={conference.title} className='w-[7rem] h-[7rem] border-8 border-white rounded-2xl shadow-md' />
+                <span className='text-4xl font-extrabold montserrat'>{conference.title}</span>
+              </div>
+              <p className='text-base text-gray-500'><FontAwesomeIcon icon={faMapMarkerAlt} className='mr-4' />{conference.venue}</p>
+              <p className='text-base text-gray-500'><FontAwesomeIcon icon={faCalendarAlt} className='mr-4' />Start Date : {new Date(conference.startDate).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })} - {conference.startTime}</p>
+              <p className='text-base text-gray-500'><FontAwesomeIcon icon={faCalendarAlt} className='mr-4' />End Date : {new Date(conference.endDate).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })} - {conference.endTime}</p>
+              <p className='text-base text-gray-500'><FontAwesomeIcon icon={faGlobe} className='mr-4' /><a href={conference.socialMediaLinks} className='decoration-0'>Visit here <FontAwesomeIcon icon={faArrowRight} /></a></p>
+              <div className='flex gap-4 text-gray-500 text-base mt-4'>
+                <span className='py-1 px-4 rounded-3xl border border-gray-400'>{conference.type}</span>
+                <span className='py-1 px-4 rounded-3xl border border-gray-400'>{conference.category}</span>
+              </div>
             </div>
-          ) : (
-            <div className="mb-4">
-              <strong>Virtual Link:</strong> <a href={conference.virtualLink} target="_blank" rel="noopener noreferrer">{conference.virtualLink}</a>
+            <div className='w-full p-6 rounded-xl bg-white shadow-md'>
+              <p className='text-base text-black font-medium'>All that you need to know about {conference.title}</p>
+              <p className='text-sm text-gray-600'>{conference.description}</p>
             </div>
-          )}
-          <div className="mb-4">
-            <strong>Ticket Type:</strong> {conference.ticketType}
           </div>
-          {conference.ticketType === 'paid' && (
-            <div className="mb-4">
-              <strong>Ticket Price:</strong> ${conference.ticketPrice}
+          <div className='w-1/3'>
+            <div className='w-full rounded-xl bg-white shadow-md self-start h-auto mb-6'>
+              <div className='w-full p-6 border-b border-b-gray-300 space-y-5'>
+                <p className='text-2xl font-medium text-black'>
+                  {conference.ticketPrice > 0 ? `$${conference.ticketPrice}` : 'Free'}
+                </p>
+                <Link to="/conference-dashboard" className="bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105 transition-transform duration-300 shadow-lg text-white text-base px-[4.3rem] py-2 rounded-lg font-medium cursor-pointer">Go to Dashboard</Link>
+              </div>
+              <div className='w-full p-6 space-y-3'>
+                <div className='w-full flex items-center gap-3'>
+                  <div className='bg-gray-300 rounded-lg text-gray-600 text-center px-3 py-2'>
+                    <FontAwesomeIcon icon={faCalendarAlt} />
+                  </div>
+                  <div className='flex flex-col'>
+                    <span className='text-xs text-gray-400'>Registration Deadline:</span>
+                    <span className='text-base text-gray-600'>{new Date(conference.registrationDeadline).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                  </div>
+                </div>
+                <div className='w-full flex items-center gap-3'>
+                  <div className='bg-gray-300 rounded-lg text-gray-600 text-center px-3 py-2'>
+                    <FontAwesomeIcon icon={faUser} />
+                  </div>
+                  <div className='flex flex-col'>
+                    <span className='text-xs text-gray-400'>Eligibility:</span>
+                    <span className='text-base text-gray-600'>{conference.targetAudience}</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
-          <div className="mb-4">
-            <strong>Registration Deadline:</strong> {new Date(conference.registrationDeadline).toLocaleDateString()}
-          </div>
-          <div className="mb-4">
-            <strong>Keynote Speakers:</strong> {conference.keynoteSpeakers}
-          </div>
-          <div className="mb-4">
-            <strong>Target Audience:</strong> {conference.targetAudience}
-          </div>
-          <div className="mb-4">
-            <strong>Social Media Links:</strong> <a href={conference.socialMediaLinks} target="_blank" rel="noopener noreferrer">{conference.socialMediaLinks}</a>
-          </div>
-          <div className="flex justify-between mt-6">
-            <button
-              onClick={handleEdit}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
-            >
-              Edit
-            </button>
-            <button
-              onClick={handleDelete}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200"
-            >
-              Delete
-            </button>
+            <button onClick={handleEdit} className='px-4 py-2 rounded-xl bg-blue-400 text-white cursor-pointer transition duration-200 hover:bg-blue-600'>Edit</button>
           </div>
         </div>
       </div>
