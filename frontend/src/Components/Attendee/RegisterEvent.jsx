@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Sidebar2 from "./Sidebar2";
+import Ticket from "./Ticket"; // Import the Ticket component
+import jsPDF from "jspdf"; // Import jsPDF for PDF generation
 
 const RegisterEvent = () => {
     const { id } = useParams();
@@ -20,6 +22,9 @@ const RegisterEvent = () => {
         billingAddress: "",
         termsAgreed: false,
     });
+    const [isRegistered, setIsRegistered] = useState(false);
+    const [registrationDetails, setRegistrationDetails] = useState(null); // State to hold registration details
+    const [showTicket, setShowTicket] = useState(false); // State to control ticket preview
 
     useEffect(() => {
         const fetchConference = async () => {
@@ -32,11 +37,24 @@ const RegisterEvent = () => {
             }
         };
 
+        const checkRegistration = async () => {
+            try {
+                const response = await fetch(`/api/check-registration?participantId=${attendee._id}&conferenceId=${id}`);
+                const data = await response.json();
+                setIsRegistered(data.isRegistered); // Set registration status
+            } catch (error) {
+                console.error('Error checking registration:', error);
+            }
+        };
+
         fetchConference();
 
         fetch("/attendee")
             .then((res) => res.json())
-            .then((data) => setAttendee(data))
+            .then((data) => {
+                setAttendee(data);
+                checkRegistration(); // Check registration after fetching attendee
+            })
             .catch((error) => console.error("Error fetching attendee:", error));
     }, [id]);
 
@@ -58,10 +76,16 @@ const RegisterEvent = () => {
             return;
         }
 
+        if (isRegistered) {
+            alert("You have already registered for this conference.");
+            return;
+        }
+
         const registrationData = {
-            participantId: attendee._id, // Assuming you have the attendee ID
+            participantId: attendee._id,
             conferenceId: id,
-            ticketType: conference.ticketPrice ? eventDetails.ticketType : "Free", // Set ticket type based on conference price
+            ticketType: conference.ticketPrice ? eventDetails.ticketType : "Free",
+            status: "Confirmed", // Ensure status is set to Confirmed
             dietaryPreference: eventDetails.dietaryPreference,
             paymentMethod: eventDetails.paymentMethod,
             billingAddress: eventDetails.billingAddress,
@@ -79,6 +103,7 @@ const RegisterEvent = () => {
             const result = await response.json();
             if (response.ok) {
                 alert("Registration successful!");
+                setRegistrationDetails(result.registration); // Store registration details
                 setCurrentStep(4); // Move to confirmation step
             } else {
                 alert(result.error || "Registration failed.");
@@ -87,6 +112,32 @@ const RegisterEvent = () => {
             console.error("Error during registration:", error);
             alert("An error occurred during registration.");
         }
+    };
+
+    const handlePreviewTicket = () => {
+        setShowTicket(true); // Show the ticket preview
+    };
+
+    const handleDownloadTicket = () => {
+        const doc = new jsPDF();
+
+        // Add ticket content to the PDF
+        doc.setFontSize(20);
+        doc.text("Ticket", 20, 20);
+        doc.setFontSize(12);
+        doc.text(`Registration Date: ${new Date(registrationDetails.registrationDate).toLocaleString()}`, 20, 40);
+        doc.text(`Registration ID: ${registrationDetails._id}`, 20, 50);
+        doc.text(`Name: ${attendee.fullname}`, 20, 60);
+        doc.text(`Email: ${attendee.email}`, 20, 70);
+        doc.text(`Phone: ${attendee.phone}`, 20, 80);
+        doc.text(`Affiliation: ${attendee.affiliation}`, 20, 90);
+        doc.text(`Event Name: ${conference.name}`, 20, 100);
+        doc.text(`Event Date: ${new Date(conference.date).toLocaleString()}`, 20, 110);
+        doc.text(`Event Location: ${conference.location}`, 20, 120);
+        doc.text("Powered By ConferenceHub", 20, 130);
+
+        // Save the PDF
+        doc.save("ticket.pdf");
     };
 
     return (
@@ -110,7 +161,7 @@ const RegisterEvent = () => {
                                 <p className={`text-sm mt-2 ${index + 1 === currentStep ? "text-blue-500" : "text-gray-500"}`}>
                                     {label}
                                 </p>
-                                {index <= steps.length && (
+                                {index < steps.length - 1 && (
                                     <div className={`w-full h-1 transition duration-1000 ${index + 1 < currentStep ? "bg-green-500" : "bg-gray-300"}`} />
                                 )}
                             </div>
@@ -124,7 +175,7 @@ const RegisterEvent = () => {
                                 <input type="text" value={attendee.fullname} readOnly className="w-full px-3 py-2 border-2 text-gray-400 cursor-none border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500" placeholder="Full Name" required />
                                 <input type="email" value={attendee.email} readOnly className="w-full px-3 py-2 border-2 text-gray-400 cursor-none border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500" placeholder="Email" required />
                                 <input type="tel" value={attendee.phone} readOnly className="w-full px-3 py-2 border-2 text-gray-400 cursor-none border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500" placeholder="Phone" required />
-                                <input type="text" value={attendee.affiliation} readOnly className="w-full px-3 py-2 border-2 text-gray-400 cursor-none border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500" placeholder="Affiliation" required />
+                                <input type="text" value={attendee.affiliation} readOnly className="w-full px-3 py-2 border-2 text-gray-400 cursor-none border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500" placeholder="Affiliation                                " required />
                             </div>
                             <button onClick={nextStep} className="mt-4 px-8 py-2 bg-blue-600 text-white rounded-xl cursor-pointer hover:bg-blue-700">Next</button>
                         </div>
@@ -185,7 +236,7 @@ const RegisterEvent = () => {
                                 <textarea className="w-full px-3 py-2 border-2 text-gray-400 cursor-none border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500" value={eventDetails.billingAddress} onChange={(e) => setEventDetails({ ...eventDetails, billingAddress: e.target.value })} placeholder="Enter your billing address" required></textarea>
                             </div>
                             <div className="mb-4 w-full flex justify-center">
-                                <label className="text-center"> 
+                                <label className="text-center">
                                     <input type="checkbox" className="mr-2" checked={eventDetails.termsAgreed} onChange={handleTermsChange} required />
                                     I agree to the Terms & Conditions
                                 </label>
@@ -201,11 +252,21 @@ const RegisterEvent = () => {
                         <div className="w-3/4 flex flex-col justify-center items-center">
                             <h2 className="text-xl font-semibold mb-4">🎉 Registration Complete! 🎉</h2>
                             <p className="text-center">Thank you for registering. You will receive a confirmation email soon.</p>
-                            <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Download Ticket</button>
+                            <button onClick={handlePreviewTicket} className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Preview Ticket</button>
+                            <button onClick={handleDownloadTicket} className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Download Ticket</button>
                         </div>
                     )}
                 </div>
             </div>
+
+            {/* Ticket Preview Modal */}
+            {showTicket && (
+                <Ticket 
+                    registrationDetails={registrationDetails} 
+                    attendeeDetails={attendee} 
+                    eventDetails={conference} 
+                />
+            )}
         </div>
     );
 };

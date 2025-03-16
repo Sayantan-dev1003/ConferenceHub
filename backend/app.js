@@ -14,6 +14,7 @@ import organiserModel from "./models/organiserModel.js";
 import publisherModel from "./models/publisherModel.js";
 import reviewerModel from "./models/reviewerModel.js";
 import conferenceModel from "./models/conferenceModel.js"
+import registrationModel from "./models/registrationModel.js"
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -385,6 +386,16 @@ app.post("/api/register", async (req, res) => {
     }
 
     try {
+        // Check if the participant has already registered for the conference
+        const existingRegistration = await registrationModel.findOne({
+            participantId,
+            conferenceId,
+        });
+
+        if (existingRegistration) {
+            return res.status(400).json({ error: "You have already registered for this conference." });
+        }
+
         // Create a new registration entry
         const registrationData = {
             participantId,
@@ -393,6 +404,7 @@ app.post("/api/register", async (req, res) => {
             dietaryPreference,
             paymentMethod,
             billingAddress,
+            status: "Confirmed",
         };
 
         const newRegistration = await registrationModel.create(registrationData);
@@ -409,9 +421,6 @@ app.get("/attendee", authenticateToken, async (req, res) => {
     if (!attendee) return res.sendStatus(404);
     res.json(attendee);
 });
-
-// Start the server
-app.listen(3000, () => console.log("Server started on port 3000"));
 
 // User Logout
 app.get("/logout", (req, res) => {
@@ -430,7 +439,7 @@ app.get("/logout", (req, res) => {
 // });
 
 // Catch-all route to serve the frontend
-app.get("*", (req, res) => {
+app.get("*", authenticateToken, (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
