@@ -7,6 +7,8 @@ import Events from "./Components/Attendee/Events"
 import ExploreEvents from "./Components/Attendee/ExploreEvents"
 import Feedback from "./Components/Attendee/Feedback"
 import SettingsA from "./Components/Attendee/Settings"
+import ViewEvent from "./Components/Attendee/ViewEvent"
+import RegisterEvent from "./Components/Attendee/RegisterEvent"
 
 import SpeakerDasboard from './Pages/SpeakerDasboard'
 import PublisherDashboard from './Pages/PublisherDashboard'
@@ -35,6 +37,8 @@ const App = () => {
         <Route path='/attendee-explore' element={<ExploreEvents />}></Route>
         <Route path='/attendee-feedback' element={<Feedback />}></Route>
         <Route path='/attendee-settings' element={<SettingsA />}></Route>
+        <Route path='/view-attendee/:id' element={<ViewEvent />}></Route>
+        <Route path='/register-attendee/:id' element={<RegisterEvent />}></Route>
 
         <Route path='/speaker-dashboard' element={<SpeakerDasboard />}></Route>
 

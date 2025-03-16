@@ -30,7 +30,6 @@ const ConferenceCard = ({ conference }) => {
                 <div className='w-[77.5%] mt-4 flex items-center justify-between'>
                     <div className='flex gap-2 items-center'>
                         <h3 className="text-2xl font-extrabold uppercase montserrat">{conference.title}</h3>
-                        <span className="text-gray-400 relative bottom-1 text-base mt-2 border border-dotted border-gray-400 rounded-full px-4">{conference.category}</span>
                     </div>
                     <p className={`text-${new Date() < new Date(conference.registrationDeadline) ? 'red-600' : 'gray-400'} text-xs relative bottom-1 mt-2 border border-dotted border-${new Date() < new Date(conference.registrationDeadline) ? 'red-600' : 'gray-400'} rounded-full px-4`}>
                         {new Date() < new Date(conference.registrationDeadline) ? 'LIVE' : 'OVER'}

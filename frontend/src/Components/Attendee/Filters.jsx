@@ -4,18 +4,19 @@ const Filters = ({ onFilterChange }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [eventType, setEventType] = useState("");
   const [category, setCategory] = useState("");
+  const [status, setStatus] = useState("");
 
   // Handles filter changes and sends updates to parent component
   const handleFilterChange = () => {
-    onFilterChange({ searchTerm, eventType, category });
+    onFilterChange({ searchTerm, eventType, category, status });
   };
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-4 md:p-6 flex flex-wrap gap-4 items-center justify-between">
+    <div className="flex gap-2 items-center justify-between">
       <input
         type="text"
         placeholder="Search events..."
-        className="border border-gray-300 px-4 py-2 rounded-md w-full md:w-1/3"
+        className="border border-gray-300 px-4 py-2 rounded-md w-full"
         value={searchTerm}
         onChange={(e) => {
           setSearchTerm(e.target.value);
@@ -59,6 +60,19 @@ const Filters = ({ onFilterChange }) => {
         <option value="Healthcare & Medicine">Healthcare & Medicine</option>
         <option value="Education & Learning">Education & Learning</option>
         <option value="Arts & Culture">Arts & Culture</option>
+      </select>
+
+      <select
+        className="border border-gray-300 px-4 py-2 rounded-md"
+        value={status}
+        onChange={(e) => {
+          setStatus(e.target.value);
+          handleFilterChange();
+        }}
+      >
+        <option value="">Select status</option>
+        <option value="Live">Live</option>
+        <option value="Over">Over</option>
       </select>
     </div>
   );

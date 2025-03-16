@@ -368,19 +368,58 @@ app.delete("/api/conference/:id", async (req, res) => {
     }
 });
 
+// Conference Registration Endpoint
+app.post("/api/register", async (req, res) => {
+    const {
+        participantId,
+        conferenceId,
+        ticketType,
+        dietaryPreference,
+        paymentMethod,
+        billingAddress,
+    } = req.body;
+
+    // Validate required fields
+    if (!participantId || !conferenceId || !ticketType || !paymentMethod || !billingAddress) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    try {
+        // Create a new registration entry
+        const registrationData = {
+            participantId,
+            conferenceId,
+            ticketType,
+            dietaryPreference,
+            paymentMethod,
+            billingAddress,
+        };
+
+        const newRegistration = await registrationModel.create(registrationData);
+        res.status(201).json({ message: "Registration successful", registration: newRegistration });
+    } catch (error) {
+        console.error("Error during registration:", error);
+        res.status(500).json({ error: "Failed to register for the conference" });
+    }
+});
+
+app.get("/attendee", authenticateToken, async (req, res) => {
+    if (req.user.role !== "attendee") return res.sendStatus(403);
+    const attendee = await attendeeModel.findById(req.user.userid);
+    if (!attendee) return res.sendStatus(404);
+    res.json(attendee);
+});
+
+// Start the server
+app.listen(3000, () => console.log("Server started on port 3000"));
+
 // User Logout
 app.get("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
     res.redirect("/");
 });
 
-// // Get Attendee Details
-// app.get("/attendee-dashboard", authenticateToken, async (req, res) => {
-//     if (req.user.role !== "attendee") return res.sendStatus(403);
-//     const attendee = await attendeeModel.findById(req.user.userid);
-//     if (!attendee) return res.sendStatus(404);
-//     res.json(attendee);
-// });
+// Get Attendee Details
 
 // // Get Speaker Details
 // app.get("/speaker-dashboard", authenticateToken, async (req, res) => {
