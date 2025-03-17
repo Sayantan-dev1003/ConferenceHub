@@ -22,7 +22,6 @@ const PaperSignIn = ({ setIsSignupOpen, setIsSigninOpen }) => {
                 role: userType,
             }, { withCredentials: true });
 
-            console.log("Login successful:", response.data);
             alert(`Login successful as ${userType}`);
             setIsSigninOpen(false);
             navigate('/paperDashboard');
