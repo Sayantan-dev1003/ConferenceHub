@@ -71,6 +71,31 @@ const RegisterEvent = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Check if all required fields are filled
+        if (!attendee.fullname || !attendee.email || !attendee.phone || !attendee.affiliation) {
+            alert("Please fill out all personal information fields.");
+            return;
+        }
+
+        if (!eventDetails.ticketType) {
+            alert("Please select a ticket type.");
+            return;
+        }
+
+        // Only check payment method and billing address if ticket price is greater than 0
+        if (conference && conference.ticketPrice > 0) {
+            if (!eventDetails.paymentMethod) {
+                alert("Please select a payment method.");
+                return;
+            }
+
+            if (!eventDetails.billingAddress) {
+                alert("Please enter your billing address.");
+                return;
+            }
+        }
+
         if (!eventDetails.termsAgreed) {
             alert("You must agree to the terms and conditions.");
             return;
@@ -84,12 +109,14 @@ const RegisterEvent = () => {
         const registrationData = {
             participantId: attendee._id,
             conferenceId: id,
-            ticketType: conference.ticketPrice ? eventDetails.ticketType : "Free",
-            status: "Confirmed", // Ensure status is set to Confirmed
+            ticketType: eventDetails.ticketType,
+            status: "Confirmed",
             dietaryPreference: eventDetails.dietaryPreference,
             paymentMethod: eventDetails.paymentMethod,
             billingAddress: eventDetails.billingAddress,
         };
+        console.log(registrationData)
+
 
         try {
             const response = await fetch('/api/register', {
@@ -172,10 +199,10 @@ const RegisterEvent = () => {
                         <div className="w-[90%] flex flex-col justify-center items-center">
                             <h2 className="text-xl font-semibold mb-6">Personal Information</h2>
                             <div className="w-full flex flex-col gap-4">
-                                <input type="text" value={attendee.fullname} readOnly className="w-full px-3 py-2 border-2 text-gray-400 cursor-none border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500" placeholder="Full Name" required />
-                                <input type="email" value={attendee.email} readOnly className="w-full px-3 py-2 border-2 text-gray-400 cursor-none border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500" placeholder="Email" required />
-                                <input type="tel" value={attendee.phone} readOnly className="w-full px-3 py-2 border-2 text-gray-400 cursor-none border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500" placeholder="Phone" required />
-                                <input type="text" value={attendee.affiliation} readOnly className="w-full px-3 py-2 border-2 text-gray-400 cursor-none border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500" placeholder="Affiliation                                " required />
+                                <input type="text" value={attendee.fullname} onChange={(e) => setAttendee({ ...attendee, fullname: e.target.value })} className="w-full px-3 py-2 border-2 text-gray-400 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500" placeholder="Full Name" required />
+                                <input type="email" value={attendee.email} onChange={(e) => setAttendee({ ...attendee, email: e.target.value })} className="w-full px-3 py-2 border-2 text-gray-400 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500" placeholder="Email" required />
+                                <input type="tel" value={attendee.phone} onChange={(e) => setAttendee({ ...attendee, phone: e.target.value })} className="w-full px-3 py-2 border-2 text-gray-400 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500" placeholder="Phone" required />
+                                <input type="text" value={attendee.affiliation} onChange={(e) => setAttendee({ ...attendee, affiliation: e.target.value })} className="w-full px-3 py-2 border-2 text-gray-400 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500" placeholder="Affiliation" required />
                             </div>
                             <button onClick={nextStep} className="mt-4 px-8 py-2 bg-blue-600 text-white rounded-xl cursor-pointer hover:bg-blue-700">Next</button>
                         </div>
@@ -186,13 +213,30 @@ const RegisterEvent = () => {
                             <h2 className="text-xl font-semibold mb-6">Event Preferences</h2>
                             <div className="mb-4 w-full">
                                 <label className="font-semibold">Ticket Type:</label>
-                                <div className="w-full px-3 py-2 border-2 text-gray-400 cursor-none border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500" required>
-                                    {conference && (conference.ticketPrice ? `$${conference.ticketPrice}` : "Free")}
-                                </div>
+                                <select
+                                    className="w-full px-3 py-2 border-2 text-gray-400 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
+                                    value={eventDetails.ticketType}
+                                    onChange={(e) => setEventDetails({ ...eventDetails, ticketType: e.target.value })}
+                                    required
+                                >
+                                    <option value="">Select Ticket Type</option>
+                                    {conference && conference.ticketPrice > 0 ? (
+                                        <>
+                                            <option value="Paid">Paid - ${conference.ticketPrice}</option>
+                                        </>
+                                    ) : (
+                                        <option value="Free">Free</option>
+                                    )}
+                                </select>
                             </div>
                             <div className="mb-4 w-full">
                                 <label className="font-semibold">Dietary Preferences:</label>
-                                <select className="w-full px-3 py-2 border-2 text-gray-400 cursor-none border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500" value={eventDetails.dietaryPreference} onChange={(e) => setEventDetails({ ...eventDetails, dietaryPreference: e.target.value })} required>
+                                <select
+                                    className="w-full px-3 py-2 border-2 text-gray-400 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
+                                    value={eventDetails.dietaryPreference}
+                                    onChange={(e) => setEventDetails({ ...eventDetails, dietaryPreference: e.target.value })}
+                                    required
+                                >
                                     <option value="">Select Dietary Preference</option>
                                     <option value="Vegetarian">Vegetarian</option>
                                     <option value="Vegan">Vegan</option>
@@ -210,31 +254,37 @@ const RegisterEvent = () => {
                     {currentStep === 3 && (
                         <div className="w-3/4 flex flex-col justify-center items-center">
                             <h2 className="text-xl font-semibold mb-6">Payment Information</h2>
-                            <div className="mb-4 w-full" required>
-                                <label className="font-semibold">Payment Method:</label>
-                                <div className="w-full flex justify-center items-center gap-6">
-                                    <label>
-                                        <input type="radio" className="mr-2" value="UPI" checked={eventDetails.paymentMethod === "UPI"} onChange={handlePaymentMethodChange} />
-                                        UPI
-                                    </label>
-                                    <label>
-                                        <input type="radio" className="mr-2" value="Credit Card" checked={eventDetails.paymentMethod === "Credit Card"} onChange={handlePaymentMethodChange} />
-                                        Credit Card
-                                    </label>
-                                    <label>
-                                        <input type="radio" className="mr-2" value="Debit Card" checked={eventDetails.paymentMethod === "Debit Card"} onChange={handlePaymentMethodChange} />
-                                        Debit Card
-                                    </label>
-                                    <label>
-                                        <input type="radio" className="mr-2" value="Net Banking" checked={eventDetails.paymentMethod === "Net Banking"} onChange={handlePaymentMethodChange} />
-                                        Net Banking
-                                    </label>
-                                </div>
-                            </div>
-                            <div className="mb-4 w-full">
-                                <label className="font-semibold">Billing Address:</label>
-                                <textarea className="w-full px-3 py-2 border-2 text-gray-400 cursor-none border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500" value={eventDetails.billingAddress} onChange={(e) => setEventDetails({ ...eventDetails, billingAddress: e.target.value })} placeholder="Enter your billing address" required></textarea>
-                            </div>
+                            {conference && conference.ticketPrice > 0 ? (
+                                <>
+                                    <div className="mb-4 w-full">
+                                        <label className="font-semibold">Payment Method:</label>
+                                        <div className="w-full flex justify-center items-center gap-6">
+                                            <label>
+                                                <input type="radio" className="mr-2" value="UPI" checked={eventDetails.paymentMethod === "UPI"} onChange={handlePaymentMethodChange} />
+                                                UPI
+                                            </label>
+                                            <label>
+                                                <input type="radio" className="mr-2" value="Credit Card" checked={eventDetails.paymentMethod === "Credit Card"} onChange={handlePaymentMethodChange} />
+                                                Credit Card
+                                            </label>
+                                            <label>
+                                                <input type="radio" className="mr-2" value="Debit Card" checked={eventDetails.paymentMethod === "Debit Card"} onChange={handlePaymentMethodChange} />
+                                                Debit Card
+                                            </label>
+                                            <label>
+                                                <input type="radio" className="mr-2" value="Net Banking" checked={eventDetails.paymentMethod === "Net Banking"} onChange={handlePaymentMethodChange} />
+                                                Net Banking
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div className="mb-4 w-full">
+                                        <label className="font-semibold">Billing Address:</label>
+                                        <textarea className="w-full px-3 py-2 border-2 text-gray-400 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500" value={eventDetails.billingAddress} onChange={(e) => setEventDetails({ ...eventDetails, billingAddress: e.target.value })} placeholder="Enter your billing address"></textarea>
+                                    </div>
+                                </>
+                            ) : (
+                                <p className="text-center">This event is free, no payment is required.</p> // Message for free events
+                            )}
                             <div className="mb-4 w-full flex justify-center">
                                 <label className="text-center">
                                     <input type="checkbox" className="mr-2" checked={eventDetails.termsAgreed} onChange={handleTermsChange} required />
@@ -261,10 +311,10 @@ const RegisterEvent = () => {
 
             {/* Ticket Preview Modal */}
             {showTicket && (
-                <Ticket 
-                    registrationDetails={registrationDetails} 
-                    attendeeDetails={attendee} 
-                    eventDetails={conference} 
+                <Ticket
+                    registrationDetails={registrationDetails}
+                    attendeeDetails={attendee}
+                    eventDetails={conference}
                 />
             )}
         </div>

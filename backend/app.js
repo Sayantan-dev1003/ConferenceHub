@@ -381,7 +381,7 @@ app.post("/api/register", async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!participantId || !conferenceId || !ticketType || !paymentMethod || !billingAddress) {
+    if (!participantId || !conferenceId || !ticketType) {
         return res.status(400).json({ error: "All fields are required" });
     }
 

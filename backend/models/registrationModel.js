@@ -9,8 +9,8 @@ const registrationSchema = mongoose.Schema({
     status: { type: String, enum: ["Confirmed", "Pending"], default: "Pending" },
     ticketType: { type: String, required: true },
     dietaryPreference: { type: String },
-    paymentMethod: { type: String, required: true },
-    billingAddress: { type: String, required: true }
+    paymentMethod: { type: String },
+    billingAddress: { type: String}
 });
 
 export default mongoose.model("Registration", registrationSchema);
