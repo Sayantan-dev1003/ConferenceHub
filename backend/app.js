@@ -452,6 +452,92 @@ app.get("/attendee", authenticateToken, async (req, res) => {
     res.json(attendee);
 });
 
+// Update Attendee Endpoint
+app.put('/api/update/attendee', authenticateToken, async (req, res) => {
+    const { fullname, email, phone, affiliation, areaOfInterest, location, socialMediaLinks } = req.body;
+
+    try {
+        // Find the attendee by ID from the token
+        const attendee = await attendeeModel.findById(req.user.userid);
+        if (!attendee) {
+            return res.status(404).json({ error: "Attendee not found" });
+        }
+
+        // Update the attendee's information
+        attendee.fullname = fullname || attendee.fullname;
+        attendee.email = email || attendee.email;
+        attendee.phone = phone || attendee.phone;
+        attendee.affiliation = affiliation || attendee.affiliation;
+        attendee.areaOfInterest = areaOfInterest || attendee.areaOfInterest;
+        attendee.location = location || attendee.location;
+        attendee.socialMediaLinks = socialMediaLinks || attendee.socialMediaLinks;
+
+        // Save the updated attendee
+        await attendee.save();
+
+        res.status(200).json({ message: "Attendee updated successfully", attendee });
+    } catch (error) {
+        console.error("Error updating attendee:", error);
+        res.status(500).json({ error: "Failed to update attendee" });
+    }
+});
+
+app.post('/api/passwordchange/attendee', authenticateToken, async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+
+    try {
+        // Find the attendee by ID from the token
+        const attendee = await attendeeModel.findById(req.user.userid);
+        if (!attendee) {
+            return res.status(404).json({ error: "Attendee not found" });
+        }
+
+        // Check if the old password matches
+        const isMatch = await bcrypt.compare(oldPassword, attendee.password);
+        if (!isMatch) {
+            return res.status(401).json({ error: "Old password is incorrect" });
+        }
+
+        // Hash the new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // Update the attendee's password
+        attendee.password = hashedPassword;
+        await attendee.save();
+
+        res.status(200).json({ message: "Password changed successfully" });
+    } catch (error) {
+        console.error("Error changing password:", error);
+        res.status(500).json({ error: "Failed to change password" });
+    }
+});
+
+app.delete('/api/delete/account', authenticateToken, async (req, res) => {
+    const { password } = req.body;
+
+    try {
+        // Find the attendee by ID from the token
+        const attendee = await attendeeModel.findById(req.user.userid);
+        if (!attendee) {
+            return res.status(404).json({ error: "Attendee not found" });
+        }
+
+        // Check if the provided password matches
+        const isMatch = await bcrypt.compare(password, attendee.password);
+        if (!isMatch) {
+            return res.status(401).json({ error: "Password is incorrect" });
+        }
+
+        // Delete the attendee account
+        await attendeeModel.findByIdAndDelete(req.user.userid);
+        res.status(200).json({ message: "Account deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting account:", error);
+        res.status(500).json({ error: "Failed to delete account" });
+    }
+});
+
 // Get all events (conferences) for the authenticated attendee
 app.get("/api/events", authenticateToken, async (req, res) => {
     try {
@@ -479,7 +565,7 @@ app.get("/api/events", authenticateToken, async (req, res) => {
 });
 
 // User Logout
-app.get("/logout", (req, res) => {
+app.post("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
     res.redirect("/");
 });
