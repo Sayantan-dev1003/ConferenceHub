@@ -9,6 +9,7 @@ const attendeeSchema = mongoose.Schema({
     affiliation: String,
     areaOfInterest: [String],
     password: String,
+    conferences: [{ type: mongoose.Schema.Types.ObjectId, ref: "Conference" }]
 });
 
 export default mongoose.model("attendee", attendeeSchema);

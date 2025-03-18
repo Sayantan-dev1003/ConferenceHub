@@ -416,10 +416,32 @@ app.post("/api/register", async (req, res) => {
             { new: true } // Return the updated document
         );
 
+        await attendeeModel.findByIdAndUpdate(
+            participantId,
+            { $push: { conferences: conferenceId } },
+            { new: true }
+        )
+
         res.status(201).json({ message: "Registration successful", registration: newRegistration });
     } catch (error) {
         console.error("Error during registration:", error);
         res.status(500).json({ error: "Failed to register for the conference" });
+    }
+});
+
+app.get("/api/register/participant/:participantId", async (req, res) => {
+    try {
+        const { participantId } = req.params; // Extract participantId from the request parameters
+        const registrations = await registrationModel.find({ participantId }); // Find all registrations for the given participantId
+
+        if (!registrations || registrations.length === 0) {
+            return res.status(404).json({ error: "No registrations found for this participant" });
+        }
+
+        res.json(registrations); // Return the found registrations
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch registrations" });
     }
 });
 
@@ -428,6 +450,32 @@ app.get("/attendee", authenticateToken, async (req, res) => {
     const attendee = await attendeeModel.findById(req.user.userid);
     if (!attendee) return res.sendStatus(404);
     res.json(attendee);
+});
+
+// Get all events (conferences) for the authenticated attendee
+app.get("/api/events", authenticateToken, async (req, res) => {
+    try {
+        // Fetch the attendee's details using the authenticated user's ID
+        const attendee = await attendeeModel.findById(req.user.userid).populate('conferences');
+
+        if (!attendee) {
+            return res.status(404).json({ error: "Attendee not found" });
+        }
+
+        // Extract conference IDs from the attendee's conferences
+        const conferenceIds = attendee.conferences.map(conference => conference._id);
+
+        // Fetch all conferences that match the extracted IDs
+        const matchedConferences = await conferenceModel.find({
+            _id: { $in: conferenceIds }
+        });
+
+        // Return the matched conferences
+        res.json(matchedConferences);
+    } catch (error) {
+        console.error("Error fetching events:", error);
+        res.status(500).json({ error: "Failed to fetch events" });
+    }
 });
 
 // User Logout
