@@ -22,6 +22,7 @@ const conferenceSchema = mongoose.Schema({
     keynoteSpeakers: { type: String, required: true },
     targetAudience: { type: String, required: true },
     socialMediaLinks: { type: String },
+    registrations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Attendee' }]
 });
 
 export default mongoose.model("Conference", conferenceSchema);

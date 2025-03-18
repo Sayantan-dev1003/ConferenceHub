@@ -408,6 +408,14 @@ app.post("/api/register", async (req, res) => {
         };
 
         const newRegistration = await registrationModel.create(registrationData);
+
+        // Update the conference to add the participantId to the registrations array
+        await conferenceModel.findByIdAndUpdate(
+            conferenceId,
+            { $push: { registrations: participantId } },
+            { new: true } // Return the updated document
+        );
+
         res.status(201).json({ message: "Registration successful", registration: newRegistration });
     } catch (error) {
         console.error("Error during registration:", error);

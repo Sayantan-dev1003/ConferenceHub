@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarAlt, faMapMarkerAlt, faArrowRight, faGlobe, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarAlt, faMapMarkerAlt, faArrowRight, faGlobe, faUser, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import Sidebar2 from './Sidebar2';
 
 const ViewEvent = () => {
@@ -65,7 +65,7 @@ const ViewEvent = () => {
               </div>
               <div className='w-full p-6 space-y-3'>
                 <div className='w-full flex items-center gap-3'>
-                  <div className='bg-gray-300 rounded-lg text-gray-600 text-center px-3 py-2'>
+                  <div className='bg-gray-300 rounded-lg text-gray-600 text-center px-4 py-2'>
                     <FontAwesomeIcon icon={faCalendarAlt} />
                   </div>
                   <div className='flex flex-col'>
@@ -74,12 +74,21 @@ const ViewEvent = () => {
                   </div>
                 </div>
                 <div className='w-full flex items-center gap-3'>
-                  <div className='bg-gray-300 rounded-lg text-gray-600 text-center px-3 py-2'>
+                  <div className='bg-gray-300 rounded-lg text-gray-600 text-center px-4 py-2'>
                     <FontAwesomeIcon icon={faUser} />
                   </div>
                   <div className='flex flex-col'>
                     <span className='text-xs text-gray-400'>Eligibility:</span>
                     <span className='text-base text-gray-600'>{conference.targetAudience}</span>
+                  </div>
+                </div>
+                <div className='w-full flex items-center gap-3'>
+                  <div className='bg-gray-300 rounded-lg text-gray-600 text-center px-3 py-2'>
+                    <FontAwesomeIcon icon={faUserGroup} />
+                  </div>
+                  <div className='flex flex-col'>
+                    <span className='text-xs text-gray-400'>Number of Registration:</span>
+                    <span className='text-base text-gray-600'>{conference.registrations.length}</span>
                   </div>
                 </div>
               </div>
