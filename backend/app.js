@@ -538,6 +538,48 @@ app.delete('/api/delete/account', authenticateToken, async (req, res) => {
     }
 });
 
+app.get('/api/transaction/history/:attendeeId', authenticateToken, async (req, res) => {
+    try {
+        const { attendeeId } = req.params;
+
+        // Find registrations for the attendee
+        const registrations = await registrationModel.find({ participantId: attendeeId });
+
+        if (!registrations.length) {
+            return res.status(404).json({ message: "No transaction history found" });
+        }
+
+        // Extract conference IDs from registrations
+        const conferenceIds = registrations.map(reg => reg.conferenceId);
+
+        // Fetch conference details
+        const conferences = await conferenceModel.find({ _id: { $in: conferenceIds } });
+
+        // Map conference data with registration data
+        const transactionHistory = registrations.map(reg => {
+            const conference = conferences.find(conf => conf._id.toString() === reg.conferenceId.toString());
+            return {
+                conferenceId: reg.conferenceId,
+                registrationId: reg._id,
+                title: conference ? conference.title : "Unknown Conference",
+                registrationDate: reg.registrationDate,
+                status: reg.status,
+                ticketType: reg.ticketType,
+                ticketPrice: conference ? conference.ticketPrice ? conference.ticketPrice : null : "Unknown Conference" ,
+                dietaryPreference: reg.dietaryPreference,
+                paymentMethod: reg.paymentMethod,
+                billingAddress: reg.billingAddress
+            };
+        });
+
+        res.status(200).json({ transactions: transactionHistory });
+
+    } catch (error) {
+        console.error("Error fetching transaction history:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
 // Get all events (conferences) for the authenticated attendee
 app.get("/api/events", authenticateToken, async (req, res) => {
     try {
@@ -561,6 +603,39 @@ app.get("/api/events", authenticateToken, async (req, res) => {
     } catch (error) {
         console.error("Error fetching events:", error);
         res.status(500).json({ error: "Failed to fetch events" });
+    }
+});
+
+app.get("/api/upcoming-events", authenticateToken, async (req, res) => {
+    try {
+        // Fetch the attendee's details using the authenticated user's ID
+        const attendee = await attendeeModel.findById(req.user.userid).populate('conferences');
+
+        if (!attendee) {
+            return res.status(404).json({ error: "Attendee not found" });
+        }
+
+        // Extract conference IDs from the attendee's conferences
+        const conferenceIds = attendee.conferences.map(conference => conference._id);
+
+        // Get the current date and calculate the date 10 days ahead
+        const currentDate = new Date();
+        console.log(currentDate)
+        const tenDaysLater = new Date();
+        tenDaysLater.setDate(tenDaysLater.getDate() + 10);
+        console.log(tenDaysLater)
+
+        // Fetch only conferences that match the extracted IDs and have startDate within the next 10 days
+        const upcomingConferences = await conferenceModel.find({
+            _id: { $in: conferenceIds },
+            startDate: { $gte: currentDate, $lte: tenDaysLater } // Filtering based on startDate
+        });
+
+        // Return the filtered upcoming conferences
+        res.json(upcomingConferences);
+    } catch (error) {
+        console.error("Error fetching upcoming events:", error);
+        res.status(500).json({ error: "Failed to fetch upcoming events" });
     }
 });
 

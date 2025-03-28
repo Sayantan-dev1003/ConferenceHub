@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const Settings = () => {
   const [activeSection, setActiveSection] = useState('profile');
   const [userData, setUserData] = useState({
+    attendeeId: '',
     fullname: '',
     email: '',
     phone: '',
@@ -25,13 +26,13 @@ const Settings = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch user data
     const fetchUserData = async () => {
       try {
         const response = await axios.get('/attendee');
         const data = response.data;
 
         setUserData({
+          attendeeId: data._id,
           fullname: data.fullname || '',
           email: data.email || '',
           phone: data.phone || '',
@@ -48,19 +49,21 @@ const Settings = () => {
       }
     };
 
-    // Fetch transaction history
     const fetchTransactions = async () => {
       try {
-        const response = await axios.get('/api/transactions'); // Adjust the endpoint as necessary
-        setTransactions(response.data);
+        if (!userData.attendeeId) return;
+        const response = await axios.get(`/api/transaction/history/${userData.attendeeId}`);
+        setTransactions(response.data.transactions);
       } catch (error) {
         console.error('Error fetching transactions:', error);
       }
     };
 
     fetchUserData();
-    fetchTransactions();
-  }, []);
+    if (userData.attendeeId) {
+      fetchTransactions();
+    }
+  }, [userData.attendeeId]);
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
@@ -127,7 +130,7 @@ const Settings = () => {
         {/* Render the active section */}
         {activeSection === 'profile' && (
           <div className='mt-6'>
-            <h2 className="text-2xl font-bold mb-4">Profile Settings</h2>
+            <h2 className="text-2xl font-bold mb-4 montserrat">Profile Settings</h2>
             <div className='bg-white p-6 rounded-lg shadow-md'>
               <div className='mb-4 flex justify-between gap-4'>
                 <div className='w-1/2'>
@@ -173,7 +176,7 @@ const Settings = () => {
 
         {activeSection === 'security' && (
           <div className='mt-6'>
-            <h2 className="text-2xl font-bold mb-4">Security & Account</h2>
+            <h2 className="text-2xl font-bold mb-4 montserrat">Security & Account</h2>
             <div className='bg-white p-6 rounded-lg shadow-md'>
               <div className='mb-4'>
                 <label className='block text-gray-700'>Old Password</label>
@@ -193,19 +196,35 @@ const Settings = () => {
 
         {activeSection === 'transactions' && (
           <div className='mt-6'>
-            <h2 className="text-2xl font-bold mb-4">Transaction History</h2>
+            <h2 className="text-2xl font-bold mb-4 montserrat">Transaction History</h2>
             <div className='bg-white p-6 rounded-lg shadow-md'>
               {transactions.length > 0 ? (
                 transactions.map(transaction => (
-                  <div key={transaction._id} className='border-b border-gray-300 py-4'>
-                    <p className='text-gray-700'>Conference: {transaction.conferenceTitle}</p>
-                    <p className='text-gray-500'>Date: {new Date(transaction.date).toLocaleDateString()}</p>
-                    <p className='text-gray-500'>Amount: ${transaction.amount}</p>
+                  <div key={transaction._id} className="border-b border-gray-300 py-4 openSans">
+                    <p className="text-gray-700 text-lg font-semibold montserrat">{transaction.title}</p>
+                    <p className="text-gray-500">Registration ID: {transaction.registrationId}</p>
+                    <p className="text-gray-500">
+                      Registration Date:{" "}
+                      {new Date(transaction.registrationDate).toLocaleString("en-IN", {
+                        timeZone: "Asia/Kolkata",
+                      })}
+                    </p>
+                    <p className="text-gray-500">Status: {transaction.status}</p>
+                    {transaction.ticketType === "Paid" ? (
+                      <>
+                        <p className="text-gray-500">Ticket Price: ${transaction.ticketPrice}</p>
+                        <p className="text-gray-500">Billing Address: {transaction.billingAddress}</p>
+                        <p className="text-gray-500">Payment Method: {transaction.paymentMethod}</p>
+                      </>
+                    ) : (
+                      <p className="text-gray-500">Ticket Type: FREE</p>
+                    )}
                   </div>
                 ))
               ) : (
-                <p className='text-gray-600'>No transactions found.</p>
+                <p className="text-gray-600">No transactions found.</p>
               )}
+
             </div>
           </div>
         )}
