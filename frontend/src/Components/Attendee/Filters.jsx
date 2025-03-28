@@ -12,7 +12,7 @@ const Filters = ({ onFilterChange }) => {
   };
 
   return (
-    <div className="flex gap-2 items-center justify-between">
+    <div className="flex gap-2 items-center justify-between text-sm">
       <input
         type="text"
         placeholder="Search events..."
@@ -20,7 +20,6 @@ const Filters = ({ onFilterChange }) => {
         value={searchTerm}
         onChange={(e) => {
           setSearchTerm(e.target.value);
-          handleFilterChange();
         }}
       />
 
@@ -29,7 +28,6 @@ const Filters = ({ onFilterChange }) => {
         value={eventType}
         onChange={(e) => {
           setEventType(e.target.value);
-          handleFilterChange();
         }}
       >
         <option value="">Select a type</option>
@@ -50,7 +48,6 @@ const Filters = ({ onFilterChange }) => {
         value={category}
         onChange={(e) => {
           setCategory(e.target.value);
-          handleFilterChange();
         }}
       >
         <option value="">Select a category</option>
@@ -67,13 +64,18 @@ const Filters = ({ onFilterChange }) => {
         value={status}
         onChange={(e) => {
           setStatus(e.target.value);
-          handleFilterChange();
         }}
       >
         <option value="">Select status</option>
         <option value="Live">Live</option>
         <option value="Over">Over</option>
       </select>
+      <button
+        onClick={handleFilterChange}
+        className="bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105 transition-transform duration-300 shadow-lg text-white px-3 py-2 rounded-lg font-medium cursor-pointer"
+      >
+        Search
+      </button>
     </div>
   );
 };

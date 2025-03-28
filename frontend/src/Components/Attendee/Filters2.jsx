@@ -5,8 +5,9 @@ const Filters2 = ({ onFilterChange }) => {
   const [status, setStatus] = useState("");
 
   // Handles filter changes and sends updates to parent component
-  const handleFilterChange = () => {
-    onFilterChange({ searchTerm, status });
+  const handleFilterChange = (newStatus) => {
+    setStatus(newStatus);
+    onFilterChange({ searchTerm, status: newStatus });
   };
 
   return (
@@ -16,26 +17,32 @@ const Filters2 = ({ onFilterChange }) => {
         placeholder="Search events..."
         className="border border-gray-300 px-4 py-2 rounded-md w-full"
         value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+        onChange={(e) => {
+          setSearchTerm(e.target.value);
+          onFilterChange({ searchTerm: e.target.value, status });
+        }}
       />
 
-      <select
-        className="border border-gray-300 px-4 py-2 rounded-md"
-        value={status}
-        onChange={(e) => setStatus(e.target.value)}
-      >
-        <option value="">Select status</option>
-        <option value="Upcoming">Upcoming</option>
-        <option value="Past">Past</option>
-        <option value="Cancelled">Cancelled</option>
-      </select>
-
-      <button
-        onClick={handleFilterChange}
-        className="bg-blue-500 text-white px-4 py-2 rounded-md"
-      >
-        Search
-      </button>
+      <div className="flex gap-3">
+        <span 
+          onClick={() => handleFilterChange("Upcoming")} 
+          className={`bg-gray-200 font-medium px-4 py-2 rounded-lg shadow transition hover:scale-105 hover:shadow-lg cursor-pointer ${status === "Upcoming" ? "bg-blue-300" : ""}`}
+        >
+          Upcoming
+        </span>
+        <span 
+          onClick={() => handleFilterChange("Past")} 
+          className={`bg-gray-200 font-medium px-4 py-2 rounded-lg shadow transition hover:scale-105 hover:shadow-lg cursor-pointer ${status === "Past" ? "bg-blue-300" : ""}`}
+        >
+          Past
+        </span>
+        <span 
+          onClick={() => handleFilterChange("Cancelled")} 
+          className={`bg-gray-200 font-medium px-4 py-2 rounded-lg shadow transition hover:scale-105 hover:shadow-lg cursor-pointer ${status === "Cancelled" ? "bg-blue-300" : ""}`}
+        >
+          Cancelled
+        </span>
+      </div>
     </div>
   );
 };

@@ -91,7 +91,7 @@ const AttendeeDashBoard = () => {
                   ))}
                 </ul>
                 {/* View All Events Button */}
-                <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105 transition-transform duration-300 shadow-lg text-white text-base px-8 py-2 rounded-lg font-medium cursor-pointer mt-14" onClick={() => navigate('/attendee-events')}>
+                <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105 transition-transform duration-300 shadow-lg text-white text-base px-4 py-2 rounded-lg font-medium cursor-pointer mt-14" onClick={() => navigate('/attendee-events')}>
                   View Your Events
                 </button>
               </>
