@@ -445,6 +445,7 @@ app.get("/api/register/participant/:participantId", async (req, res) => {
     }
 });
 
+// Get Attendee Details
 app.get("/attendee", authenticateToken, async (req, res) => {
     if (req.user.role !== "attendee") return res.sendStatus(403);
     const attendee = await attendeeModel.findById(req.user.userid);
@@ -565,7 +566,7 @@ app.get('/api/transaction/history/:attendeeId', authenticateToken, async (req, r
                 registrationDate: reg.registrationDate,
                 status: reg.status,
                 ticketType: reg.ticketType,
-                ticketPrice: conference ? conference.ticketPrice ? conference.ticketPrice : null : "Unknown Conference" ,
+                ticketPrice: conference ? conference.ticketPrice ? conference.ticketPrice : null : "Unknown Conference",
                 dietaryPreference: reg.dietaryPreference,
                 paymentMethod: reg.paymentMethod,
                 billingAddress: reg.billingAddress
@@ -639,21 +640,104 @@ app.get("/api/upcoming-events", authenticateToken, async (req, res) => {
     }
 });
 
+// Get Speaker Details
+app.get("/speaker", authenticateToken, async (req, res) => {
+    if (req.user.role !== "speaker") return res.sendStatus(403);
+    const speaker = await speakerModel.findById(req.user.userid);
+    if (!speaker) return res.sendStatus(404);
+    res.json(speaker);
+});
+
+// Update Speaker Endpoint
+app.put('/api/update/speaker', authenticateToken, async (req, res) => {
+    const { fullname, email, phone, affiliation, bio, location, socialMediaLinks } = req.body;
+
+    try {
+        const speaker = await speakerModel.findById(req.user.userid);
+        if (!speaker) {
+            return res.status(404).json({ error: "Speaker not found" });
+        }
+
+        // Update the speaker's information
+        speaker.fullname = fullname || speaker.fullname;
+        speaker.email = email || speaker.email;
+        speaker.phone = phone || speaker.phone;
+        speaker.affiliation = affiliation || speaker.affiliation;
+        speaker.bio = bio || speaker.bio;
+        speaker.location = location || speaker.location;
+        speaker.socialMediaLinks = socialMediaLinks || speaker.socialMediaLinks;
+
+        // Save the updated speaker
+        await speaker.save();
+
+        res.status(200).json({ message: "Speaker updated successfully", speaker });
+    } catch (error) {
+        console.error("Error updating speaker:", error);
+        res.status(500).json({ error: "Failed to update speaker", details: error.message }); // Include error details
+    }
+});
+
+app.post('/api/passwordchange/speaker', authenticateToken, async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+
+    try {
+        // Find the speaker by ID from the token
+        const speaker = await speakerModel.findById(req.user.userid);
+        if (!speaker) {
+            return res.status(404).json({ error: "Speaker not found" });
+        }
+
+        // Check if the old password matches
+        const isMatch = await bcrypt.compare(oldPassword, speaker.password);
+        if (!isMatch) {
+            return res.status(401).json({ error: "Old password is incorrect" });
+        }
+
+        // Hash the new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // Update the attendee's password
+        speaker.password = hashedPassword;
+        await speaker.save();
+
+        res.status(200).json({ message: "Password changed successfully" });
+    } catch (error) {
+        console.error("Error changing password:", error);
+        res.status(500).json({ error: "Failed to change password" });
+    }
+});
+
+app.delete('/api/delete/speaker-account', authenticateToken, async (req, res) => {
+    const { password } = req.body;
+
+    try {
+        // Find the speaker by ID from the token
+        const speaker = await speakerModel.findById(req.user.userid);
+        if (!speaker) {
+            return res.status(404).json({ error: "Speaker not found" });
+        }
+
+        // Check if the provided password matches
+        const isMatch = await bcrypt.compare(password, speaker.password);
+        if (!isMatch) {
+            return res.status(401).json({ error: "Password is incorrect" });
+        }
+
+        // Delete the speaker account
+        await speakerModel.findByIdAndDelete(req.user.userid);
+        res.status(200).json({ message: "Account deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting account:", error);
+        res.status(500).json({ error: "Failed to delete account" });
+    }
+});
+
 // User Logout
 app.post("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
     res.redirect("/");
 });
-
-// Get Attendee Details
-
-// // Get Speaker Details
-// app.get("/speaker-dashboard", authenticateToken, async (req, res) => {
-//     if (req.user.role !== "speaker") return res.sendStatus(403);
-//     const speaker = await speakerModel.findById(req.user.userid);
-//     if (!speaker) return res.sendStatus(404);
-//     res.json(speaker);
-// });
 
 // Catch-all route to serve the frontend
 app.get("*", authenticateToken, (req, res) => {

@@ -9,6 +9,11 @@ const speakerSchema = mongoose.Schema({
     affiliation: String,
     bio: String,
     password: String,
+    location: { type: String },
+    socialMediaLinks: {
+        twitter: { type: String },
+        linkedin: { type: String }
+    }
 });
 
 export default mongoose.model("speaker", speakerSchema);

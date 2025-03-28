@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const Sidebar1 = () => {
+const Sidebar2 = () => {
   return (
     <div className="h-screen w-1/5 bg-gray-800 text-white openSans fixed top-0 left-0 z-10">
       <div className="p-4 text-4xl font-bold moonDance">ConferenceHub</div>
@@ -28,4 +28,4 @@ const Sidebar1 = () => {
   );
 };
 
-export default Sidebar1;
+export default Sidebar2;

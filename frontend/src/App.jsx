@@ -11,6 +11,11 @@ import ViewEvent from "./Components/Attendee/ViewEvent"
 import RegisterEvent from "./Components/Attendee/RegisterEvent"
 
 import SpeakerDasboard from './Pages/SpeakerDasboard'
+import Sessions from "./Components/Speaker/Sessions"
+import SessionsAnalytics from "./Components/Speaker/SessionAnalytics"
+import FeedbackSpeaker from "./Components/Speaker/Feedback"
+import SettingsSpeaker from "./Components/Speaker/Settings"
+
 import PublisherDashboard from './Pages/PublisherDashboard'
 import ReviewerDashboard from './Pages/ReviewerDashboard'
 
@@ -41,6 +46,10 @@ const App = () => {
         <Route path='/register-attendee/:id' element={<RegisterEvent />}></Route>
 
         <Route path='/speaker-dashboard' element={<SpeakerDasboard />}></Route>
+        <Route path='/my-sessions' element={<Sessions />}></Route>
+        <Route path='/session-analytics' element={<SessionsAnalytics />}></Route>
+        <Route path='/feedback-reviews' element={<FeedbackSpeaker />}></Route>
+        <Route path='/speaker-settings' element={<SettingsSpeaker />}></Route>
 
         <Route path='/conference-dashboard' element={<ConferenceDashboard />}></Route>
         <Route path='/create-conference' element={<ConferenceForm />}></Route>
