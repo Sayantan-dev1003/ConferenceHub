@@ -21,7 +21,6 @@ const ConferenceForm = () => {
     ticketType: 'free',
     ticketPrice: '',
     registrationDeadline: '',
-    keynoteSpeakers: '',
     targetAudience: '',
     socialMediaLinks: '',
   });
@@ -53,18 +52,18 @@ const ConferenceForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const formDataToSend = new FormData();
     for (const key in formData) {
       formDataToSend.append(key, formData[key]);
     }
-  
+
     try {
       const response = await fetch('/api/conference', {
         method: 'POST',
         body: formDataToSend,
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         console.log(data.message);
@@ -331,16 +330,65 @@ const ConferenceForm = () => {
                   <label className="block text-sm font-semibold text-gray-700 mb-2" htmlFor="venue">
                     Venue
                   </label>
-                  <textarea
+                  <select
                     name="venue"
                     id="venue"
                     value={formData.venue}
                     onChange={handleChange}
                     required
-                    rows="3"
                     className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-blue-400 transition duration-200"
-                    placeholder="Enter the physical location details"
-                  />
+                  >
+                    <option value="" disabled>Select a venue</option>
+
+                    {/* Hotels & Resorts */}
+                    <optgroup label="Hotels & Resorts">
+                      <option value="Hyatt Regency Ahmedabad">Hyatt Regency Ahmedabad</option>
+                      <option value="Courtyard by Marriott Ahmedabad">Courtyard by Marriott Ahmedabad</option>
+                      <option value="Novotel Ahmedabad">Novotel Ahmedabad</option>
+                      <option value="The Fern – An Ecotel Hotel">The Fern – An Ecotel Hotel</option>
+                      <option value="Radisson Blu Hotel Ahmedabad">Radisson Blu Hotel Ahmedabad</option>
+                    </optgroup>
+
+                    {/* Convention Centers */}
+                    <optgroup label="Convention Centers">
+                      <option value="Gujarat University Convention Centre">Gujarat University Convention Centre</option>
+                      <option value="Mahatma Mandir Convention & Exhibition Centre">Mahatma Mandir Convention & Exhibition Centre (Gandhinagar)</option>
+                      <option value="GMDC Convention Centre">GMDC Convention Centre</option>
+                      <option value="Tagore Hall & Convention Centre">Tagore Hall & Convention Centre</option>
+                    </optgroup>
+
+                    {/* University & College Auditoriums */}
+                    <optgroup label="University & College Auditoriums">
+                      <option value="IIM Ahmedabad Auditorium">IIM Ahmedabad Auditorium</option>
+                      <option value="Gujarat University Auditorium">Gujarat University Auditorium</option>
+                      <option value="CEPT University Convention Hall">CEPT University Convention Hall</option>
+                      <option value="Nirma University Auditorium">Nirma University Auditorium</option>
+                      <option value="DAIICT Auditorium">DAIICT Auditorium (Gandhinagar)</option>
+                    </optgroup>
+
+                    {/* Corporate Spaces */}
+                    <optgroup label="Corporate Meeting Spaces">
+                      <option value="Regus - Ahmedabad Corporate Road">Regus - Ahmedabad Corporate Road</option>
+                      <option value="WeWork - Ahmedabad">WeWork - Ahmedabad</option>
+                      <option value="CIIE.CO - IIM Ahmedabad">CIIE.CO (IIM Ahmedabad)</option>
+                      <option value="The Address Co-Working">The Address Co-Working & Conference Hall</option>
+                    </optgroup>
+
+                    {/* Government & Cultural Centers */}
+                    <optgroup label="Government & Cultural Centers">
+                      <option value="Sardar Vallabhbhai Patel Memorial Hall">Sardar Vallabhbhai Patel Memorial Hall</option>
+                      <option value="Ahmedabad Management Association (AMA) Auditorium">Ahmedabad Management Association (AMA) Auditorium</option>
+                      <option value="Gujarat Chamber of Commerce & Industry (GCCI) Hall">Gujarat Chamber of Commerce & Industry (GCCI) Hall</option>
+                      <option value="Sanskar Kendra Auditorium">Sanskar Kendra Auditorium</option>
+                    </optgroup>
+
+                    {/* Large Auditoriums */}
+                    <optgroup label="Large Auditoriums">
+                      <option value="Tagore Hall">Tagore Hall</option>
+                      <option value="Thakorbhai Desai Hall">Thakorbhai Desai Hall</option>
+                      <option value="Pandit Dindayal Upadhyay Auditorium">Pandit Dindayal Upadhyay Auditorium</option>
+                    </optgroup>
+                  </select>
                 </div>
               ) : (
                 <div>
@@ -425,20 +473,6 @@ const ConferenceForm = () => {
                   onChange={handleChange}
                   required
                   className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-blue-400 transition duration-200"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Keynote Speakers</label>
-                <textarea
-                  name="keynoteSpeakers"
-                  id="keynoteSpeakers"
-                  value={formData.keynoteSpeakers}
-                  onChange={handleChange}
-                  required
-                  rows="3"
-                  className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-blue-400 transition duration-200"
-                  placeholder="Enter keynote speakers' names and bios"
                 />
               </div>
 

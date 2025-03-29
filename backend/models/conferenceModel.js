@@ -19,7 +19,6 @@ const conferenceSchema = mongoose.Schema({
     ticketType: { type: String, required: true },
     ticketPrice: { type: Number },
     registrationDeadline: { type: Date, required: true },
-    keynoteSpeakers: { type: String, required: true },
     targetAudience: { type: String, required: true },
     socialMediaLinks: { type: String },
     registrations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Attendee' }]

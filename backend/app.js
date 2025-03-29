@@ -216,7 +216,6 @@ app.post("/api/conference", upload.fields([{ name: 'logo' }, { name: 'banner' }]
         ticketType,
         ticketPrice,
         registrationDeadline,
-        keynoteSpeakers,
         targetAudience,
         socialMediaLinks,
     } = req.body;
@@ -244,7 +243,6 @@ app.post("/api/conference", upload.fields([{ name: 'logo' }, { name: 'banner' }]
         ticketType,
         ticketPrice,
         registrationDeadline,
-        keynoteSpeakers,
         targetAudience,
         socialMediaLinks,
     };
@@ -299,7 +297,6 @@ app.put("/api/conference/:id", upload.fields([{ name: 'logo' }, { name: 'banner'
         ticketType,
         ticketPrice,
         registrationDeadline,
-        keynoteSpeakers,
         targetAudience,
         socialMediaLinks,
     } = req.body;
@@ -336,7 +333,6 @@ app.put("/api/conference/:id", upload.fields([{ name: 'logo' }, { name: 'banner'
         }
 
         conference.registrationDeadline = registrationDeadline;
-        conference.keynoteSpeakers = keynoteSpeakers;
         conference.targetAudience = targetAudience;
         conference.socialMediaLinks = socialMediaLinks;
 
