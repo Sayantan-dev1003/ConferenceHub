@@ -729,6 +729,99 @@ app.delete('/api/delete/speaker-account', authenticateToken, async (req, res) =>
     }
 });
 
+// Get Organiser Details
+app.get("/organiser", authenticateToken, async (req, res) => {
+    // if (req.user.role !== "organiser") return res.sendStatus(403);
+    const organiser = await organiserModel.findById(req.user.userid);
+    if (!organiser) return res.sendStatus(404);
+    res.json(organiser);
+});
+
+// Update Organiser Endpoint
+app.put('/api/update/organiser', authenticateToken, async (req, res) => {
+    const { fullname, email, phone, organisation, bio, location, socialMediaLinks } = req.body;
+
+    try {
+        const organiser = await organiserModel.findById(req.user.userid);
+        if (!organiser) {
+            return res.status(404).json({ error: "Speaker not found" });
+        }
+
+        // Update the organiser's information
+        organiser.fullname = fullname || organiser.fullname;
+        organiser.email = email || organiser.email;
+        organiser.phone = phone || organiser.phone;
+        organiser.organisation = organisation || organiser.organisation;
+        organiser.bio = bio || organiser.bio;
+        organiser.location = location || organiser.location;
+        organiser.socialMediaLinks = socialMediaLinks || organiser.socialMediaLinks;
+
+        // Save the updated speaker
+        await organiser.save();
+
+        res.status(200).json({ message: "Organiser updated successfully", organiser });
+    } catch (error) {
+        console.error("Error updating organiser:", error);
+        res.status(500).json({ error: "Failed to update organiser", details: error.message }); // Include error details
+    }
+});
+
+app.post('/api/passwordchange/organiser', authenticateToken, async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+
+    try {
+        // Find the organiser by ID from the token
+        const organiser = await organiserModel.findById(req.user.userid);
+        if (!organiser) {
+            return res.status(404).json({ error: "Organiser not found" });
+        }
+
+        // Check if the old password matches
+        const isMatch = await bcrypt.compare(oldPassword, organiser.password);
+        if (!isMatch) {
+            return res.status(401).json({ error: "Old password is incorrect" });
+        }
+
+        // Hash the new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // Update the attendee's password
+        organiser.password = hashedPassword;
+        await organiser.save();
+
+        res.status(200).json({ message: "Password changed successfully" });
+    } catch (error) {
+        console.error("Error changing password:", error);
+        res.status(500).json({ error: "Failed to change password" });
+    }
+});
+
+app.delete('/api/delete/organiser-account', authenticateToken, async (req, res) => {
+    const { password } = req.body;
+
+    try {
+        // Find the organiser by ID from the token
+        const organiser = await organiserModel.findById(req.user.userid);
+        if (!organiser) {
+            return res.status(404).json({ error: "Organiser not found" });
+        }
+
+        // Check if the provided password matches
+        const isMatch = await bcrypt.compare(password, organiser.password);
+        if (!isMatch) {
+            return res.status(401).json({ error: "Password is incorrect" });
+        }
+
+        // Delete the organiser account
+        await organiserModel.findByIdAndDelete(req.user.userid);
+        res.status(200).json({ message: "Account deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting account:", error);
+        res.status(500).json({ error: "Failed to delete account" });
+    }
+});
+
 // User Logout
 app.post("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });

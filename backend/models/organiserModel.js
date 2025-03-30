@@ -9,6 +9,11 @@ const organiserSchema = mongoose.Schema({
     organisation: String,
     bio: String,
     password: String,
+    location: { type: String },
+    socialMediaLinks: {
+        twitter: { type: String },
+        linkedin: { type: String }
+    }
 });
 
 export default mongoose.model("organiser", organiserSchema);
