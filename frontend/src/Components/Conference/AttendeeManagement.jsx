@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar1 from './Sidebar1';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const AttendeeManagement = () => {
   const [conferences, setConferences] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchConferences = async () => {
@@ -23,20 +25,24 @@ const AttendeeManagement = () => {
       <Sidebar1 />
 
       <div className='w-4/5 min-h-screen flex flex-col overflow-y-auto p-6'>
-        <div className='w-full sticky top-0 right-0 z-50 border-b-2 pb-4 border-b-gray-300'>
+        <div className='w-full sticky top-0 right-0 z-50 border-b-2 pb-4 mb-4 border-b-gray-300'>
           <h1 className="text-3xl font-bold mb-1 montserrat text-center">Manage Attendees</h1>
           <p className='text-lg font-medium montserrat text-gray-500 text-center'>Effortlessly handle attendee registrations, track participation, and enhance engagement with smart management tools!</p>
         </div>
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Your Events</h2>
+        <div className="bg-white shadow overflow-hidden sm:rounded-md">
+          <h2 className="p-4 text-lg leading-6 font-medium text-gray-900 montserrat">Your Events</h2>
           {conferences.length > 0 ? (
-            <ul className="list-disc pl-5">
+            <ul className="border-t border-gray-200 divide-y divide-gray-200">
               {conferences.map(conference => (
-                <li key={conference._id} className="text-lg">{conference.title}</li>
+                <li key={conference._id} className="px-4 py-4  cursor-pointer hover:bg-gray-100" onClick={() => navigate(`/attendee-management/${conference._id}/registrations`)}>
+                  <div className="text-lg text-gray-500">{conference.title}</div>
+                </li>
               ))}
             </ul>
           ) : (
-            <p className="text-lg text-gray-500">No events found.</p>
+            <div className="px-4 py-5 sm:px-6">
+              <p className="text-sm text-gray-500">No events found.</p>
+            </div>
           )}
         </div>
       </div>

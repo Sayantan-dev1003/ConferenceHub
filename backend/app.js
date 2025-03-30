@@ -837,17 +837,46 @@ app.delete('/api/delete/organiser-account', authenticateToken, async (req, res) 
 // Get all conferences created by the authenticated organizer
 app.get("/api/organiser/conferences", authenticateToken, async (req, res) => {
     try {
-        // Fetch the organizer's conferences using the authenticated user's ID
-        const conferences = await conferenceModel.find({ organiserId: req.user.userid }); // Assuming you have an organiserId field in your conference model
+        // Fetch the organizer's details using the authenticated user's ID
+        const organiser = await organiserModel.findById(req.user.userid).populate('conferences'); // Assuming you have a conferences field that references the conference model
 
-        if (!conferences || conferences.length === 0) {
+        if (!organiser || !organiser.conferences || organiser.conferences.length === 0) {
             return res.status(404).json({ error: "No conferences found for this organizer" });
         }
-
-        res.json(conferences); // Return the found conferences
+        res.json(organiser.conferences); // Return the found conferences
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Failed to fetch conferences" });
+    }
+});
+
+// Get registration details for a specific conference
+app.get("/api/conference/:id/registrations", authenticateToken, async (req, res) => {
+    const conferenceId = req.params.id;
+
+    try {
+        const registrations = await registrationModel.find({ conferenceId })
+            .populate('participantId', 'fullname')
+            .exec();
+
+        if (!registrations || registrations.length === 0) {
+            return res.status(404).json({ error: "No registrations found for this conference" });
+        }
+
+        const registrationDetails = registrations.map(reg => ({
+            registrationId: reg._id,
+            attendeeName: reg.participantId ? reg.participantId.fullname : "Unknown Attendee",
+            registrationDate: reg.registrationDate,
+            dietaryPreference: reg.dietaryPreference || 'N/A',
+            paymentMethod: reg.paymentMethod || 'N/A',
+            billingAddress: reg.billingAddress || 'N/A',
+            status: reg.status,
+        }));
+
+        res.json(registrationDetails);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch registrations" });
     }
 });
 
