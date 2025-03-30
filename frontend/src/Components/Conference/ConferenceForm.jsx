@@ -62,6 +62,7 @@ const ConferenceForm = () => {
       const response = await fetch('/api/conference', {
         method: 'POST',
         body: formDataToSend,
+        credentials: 'include'
       });
 
       if (response.ok) {

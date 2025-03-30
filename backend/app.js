@@ -200,7 +200,7 @@ app.post("/paper/login", async (req, res) => {
 });
 
 // Conference Registration Endpoint
-app.post("/api/conference", upload.fields([{ name: 'logo' }, { name: 'banner' }]), async (req, res) => {
+app.post("/api/conference", upload.fields([{ name: 'logo' }, { name: 'banner' }]), authenticateToken, async (req, res) => {
     const {
         title,
         description,
@@ -248,7 +248,19 @@ app.post("/api/conference", upload.fields([{ name: 'logo' }, { name: 'banner' }]
     };
 
     try {
+        // Create the new conference
         const newConference = await conferenceModel.create(conferenceData);
+
+        // Get the organizer's ID from the token
+        const organiserId = req.user.userid; // Ensure req.user is set correctly
+
+        // Update the organizer's conferences array
+        await organiserModel.findByIdAndUpdate(
+            organiserId,
+            { $push: { conferences: newConference._id } }, // Push the new conference ID
+            { new: true } // Return the updated document
+        );
+
         res.status(201).json({ message: "Conference created successfully", conference: newConference });
     } catch (error) {
         console.error(error);
@@ -819,6 +831,23 @@ app.delete('/api/delete/organiser-account', authenticateToken, async (req, res) 
     } catch (error) {
         console.error("Error deleting account:", error);
         res.status(500).json({ error: "Failed to delete account" });
+    }
+});
+
+// Get all conferences created by the authenticated organizer
+app.get("/api/organiser/conferences", authenticateToken, async (req, res) => {
+    try {
+        // Fetch the organizer's conferences using the authenticated user's ID
+        const conferences = await conferenceModel.find({ organiserId: req.user.userid }); // Assuming you have an organiserId field in your conference model
+
+        if (!conferences || conferences.length === 0) {
+            return res.status(404).json({ error: "No conferences found for this organizer" });
+        }
+
+        res.json(conferences); // Return the found conferences
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch conferences" });
     }
 });
 
