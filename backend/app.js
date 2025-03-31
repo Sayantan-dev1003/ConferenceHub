@@ -742,6 +742,18 @@ app.delete('/api/delete/speaker-account', authenticateToken, async (req, res) =>
     }
 });
 
+app.get("/api/speaker-details/:conferenceName", authenticateToken, async (req, res) => {
+    // if (req.user.role !== "speaker") return res.sendStatus(403);
+    const conferenceName = req.params.conferenceName; // Assuming conference name is passed as a parameter
+    if (!conferenceName) return res.status(400).json({ error: "Conference name is required" });
+    const conference = await conferenceModel.findOne({ title: conferenceName });
+    if (!conference) return res.status(404).json({ error: "Conference not found" });
+    const conferenceCategory = conference.category;
+    const speakers = await speakerModel.find({ areaOfInterest: conferenceCategory });
+    console.log("Speaker: ", speakers);
+    res.json(speakers || []);
+});
+
 // Get Organiser Details
 app.get("/organiser", authenticateToken, async (req, res) => {
     // if (req.user.role !== "organiser") return res.sendStatus(403);

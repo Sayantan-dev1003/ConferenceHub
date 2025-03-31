@@ -68,7 +68,7 @@ const ConferenceForm = () => {
       if (response.ok) {
         const data = await response.json();
         console.log(data.message);
-        navigate('/manage-conference');
+        navigate(`/assign-speaker/${formData.title}`);
       } else {
         console.error('Error submitting form');
       }

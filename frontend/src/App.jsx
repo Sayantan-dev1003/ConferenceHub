@@ -28,6 +28,7 @@ import ManageReviewers from './Components/Conference/ManageReviewers'
 import AttendeeManagement from './Components/Conference/AttendeeManagement'
 import AttendeeData from './Components/Conference/AttendeeData'
 import SpeakerManagement from './Components/Conference/SpeakerManagement'
+import AssignSpeaker from "./Components/Conference/AssignSpeaker"
 import Settings from './Components/Conference/Settings'
 import ConferenceForm from './Components/Conference/ConferenceForm'
 import EditConference from "./Components/Conference/EditConference"
@@ -62,6 +63,7 @@ const App = () => {
         <Route path='/manage-reviewers' element={<ManageReviewers />}></Route>
         <Route path='/attendee-management' element={<AttendeeManagement />}></Route>
         <Route path='/attendee-management/:id/registrations' element={<AttendeeData />}></Route>
+        <Route path='/assign-speaker/:title' element={<AssignSpeaker />}></Route>
         <Route path='/speaker-management' element={<SpeakerManagement />}></Route>
         <Route path='/settings' element={<Settings />}></Route>
 
