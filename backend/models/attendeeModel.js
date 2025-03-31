@@ -7,7 +7,7 @@ const attendeeSchema = mongoose.Schema({
     email: { type: String, required: true, unique: true },
     phone: { type: Number, required: true },
     affiliation: { type: String },
-    areaOfInterest: { type: [String] },
+    areaOfInterest: { type: String },
     password: { type: String, required: true },
     conferences: [{ type: mongoose.Schema.Types.ObjectId, ref: "Conference" }],
     location: { type: String },

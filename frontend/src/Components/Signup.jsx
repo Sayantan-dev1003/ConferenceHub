@@ -21,6 +21,7 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
         phone: "",
         affiliation: "",
         bio: "",
+        areaOfInterest: "",
         password: "",
     });
     const [error, setError] = useState("");
@@ -47,13 +48,14 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
             payload = {
                 ...formDataAttendee,
                 userType,
-                areaOfInterest: formDataAttendee.areaOfInterest.split(',').map(area => area.trim()),
+                areaOfInterest: formDataAttendee.areaOfInterest,
             };
         } else {
             payload = {
                 ...formDataSpeaker,
                 userType,
                 bio: formDataSpeaker.bio,
+                areaOfInterest: formDataSpeaker.areaOfInterest,
             };
         }
 
@@ -81,6 +83,7 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                     phone: "",
                     affiliation: "",
                     bio: "",
+                    areaOfInterest: "",
                     password: "",
                 });
                 setIsSignupOpen(false);
@@ -108,6 +111,16 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
         setIsSignupOpen(false);
         setIsSigninOpen(true);
     };
+
+    // Options for Area of Interest
+    const areaOfInterestOptions = [
+        "Technology & Innovation",
+        "Business & Entrepreneurship",
+        "Science & Research",
+        "Healthcare & Medicine",
+        "Education & Learning",
+        "Arts & Culture"
+    ];
 
     return (
         <>
@@ -207,21 +220,22 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                             />
                         </div>
 
-                        {/* Attendee-Specific Field */}
-                        {userType === "attendee" && (
-                            <div className="relative">
-                                <FontAwesomeIcon icon={faLightbulb} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                <input
-                                    type="text"
-                                    name="areaOfInterest"
-                                    value={formDataAttendee.areaOfInterest}
-                                    onChange={handleChange}
-                                    placeholder="Area of Interest"
-                                    className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
-                                    required
-                                />
-                            </div>
-                        )}
+                        {/* Area of Interest Dropdown */}
+                        <div className="relative">
+                            <FontAwesomeIcon icon={faLightbulb} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                            <select
+                                name="areaOfInterest"
+                                value={userType === "attendee" ? formDataAttendee.areaOfInterest : formDataSpeaker.areaOfInterest}
+                                onChange={handleChange}
+                                className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
+                                required
+                            >
+                                <option value="" disabled  className="absolute left-4 top-4 text-gray-500">Select Area of Interest</option>
+                                {areaOfInterestOptions.map((option, index) => (
+                                    <option key={index} value={option} className="absolute left-4 top-4 text-gray-500">{option}</option>
+                                ))}
+                            </select>
+                        </div>
 
                         {/* Speaker-Specific Field */}
                         {userType === "speaker" && (
@@ -269,7 +283,7 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                         </button>
                     </form>
                 </div>
-            </section>
+            </section >
         </>
     );
 };

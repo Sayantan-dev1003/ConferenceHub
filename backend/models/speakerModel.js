@@ -8,6 +8,7 @@ const speakerSchema = mongoose.Schema({
     phone: Number,
     affiliation: String,
     bio: String,
+    areaOfInterest: { type: String },
     password: String,
     location: { type: String },
     socialMediaLinks: {

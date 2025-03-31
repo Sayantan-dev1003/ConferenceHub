@@ -81,7 +81,7 @@ app.post("/register", async (req, res) => {
         }
         user = await attendeeModel.create({ fullname, email, phone, affiliation, password: hashedPassword, areaOfInterest });
     } else {
-        user = await speakerModel.create({ fullname, email, phone, affiliation, password: hashedPassword, bio });
+        user = await speakerModel.create({ fullname, email, phone, affiliation, password: hashedPassword, bio, areaOfInterest });
     }
 
     const token = jwt.sign({ email: email, userid: user._id, userType: userType }, "Sayantan");
@@ -658,7 +658,7 @@ app.get("/speaker", authenticateToken, async (req, res) => {
 
 // Update Speaker Endpoint
 app.put('/api/update/speaker', authenticateToken, async (req, res) => {
-    const { fullname, email, phone, affiliation, bio, location, socialMediaLinks } = req.body;
+    const { fullname, email, phone, affiliation, bio, areaOfInterest, location, socialMediaLinks } = req.body;
 
     try {
         const speaker = await speakerModel.findById(req.user.userid);
@@ -672,6 +672,7 @@ app.put('/api/update/speaker', authenticateToken, async (req, res) => {
         speaker.phone = phone || speaker.phone;
         speaker.affiliation = affiliation || speaker.affiliation;
         speaker.bio = bio || speaker.bio;
+        speaker.areaOfInterest = areaOfInterest || speaker.areaOfInterest;
         speaker.location = location || speaker.location;
         speaker.socialMediaLinks = socialMediaLinks || speaker.socialMediaLinks;
 

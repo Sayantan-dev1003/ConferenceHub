@@ -12,7 +12,7 @@ const Settings = () => {
     email: '',
     phone: '',
     affiliation: '',
-    areaOfInterest: [],
+    areaOfInterest: '',
     location: '',
     socialMediaLinks: {
       twitter: '',
@@ -37,7 +37,7 @@ const Settings = () => {
           email: data.email || '',
           phone: data.phone || '',
           affiliation: data.affiliation || '',
-          areaOfInterest: data.areaOfInterest || [],
+          areaOfInterest: data.areaOfInterest || '',
           location: data.location || '',
           socialMediaLinks: {
             twitter: data.socialMediaLinks?.twitter || '',
@@ -155,7 +155,15 @@ const Settings = () => {
               <div className='mb-4 flex justify-between gap-4'>
                 <div className='w-1/2'>
                   <label className='block text-gray-700'>Area of Interest</label>
-                  <input type='text' name='areaOfInterest' value={userData.areaOfInterest.join(', ')} onChange={(e) => handleProfileChange({ target: { name: 'areaOfInterest', value: e.target.value.split(', ') } })} className='border border-gray-300 rounded-md w-full p-2' />
+                  <select name='areaOfInterest' value={userData.areaOfInterest} onChange={handleProfileChange} className='border border-gray-300 rounded-md w-full p-2'>
+                    <option value="" disabled>Select Area of Interest</option>
+                    <option value="Technology & Innovation">Technology & Innovation</option>
+                    <option value="Business & Entrepreneurship">Business & Entrepreneurship</option>
+                    <option value="Science & Research">Science & Research</option>
+                    <option value="Healthcare & Medicine">Healthcare & Medicine</option>
+                    <option value="Education & Learning">Education & Learning</option>
+                    <option value="Arts & Culture">Arts & Culture</option>
+                  </select>
                 </div>
                 <div className='w-1/2'>
                   <label className='block text-gray-700'>Location</label>
