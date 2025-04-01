@@ -85,11 +85,11 @@ const ViewEventSpeaker = () => {
                   <div key={inv._id} className="flex justify-between items-center">
                     <div className='flex gap-4'>
                       {inv.status === 'Accepted' ? (
-                        <button className='py-1.5 px-3 rounded-lg shadow cursor-pointer text-white font-medium bg-gray-400' disabled>
+                        <button className='py-1.5 px-3 rounded-lg shadow cursor-not-allowed text-white font-medium bg-gray-400' disabled>
                           Accepted
                         </button>
                       ) : inv.status === 'Declined' ? (
-                        <button className='py-1.5 px-3 rounded-lg shadow cursor-pointer text-white font-medium bg-gray-400' disabled>
+                        <button className='py-1.5 px-3 rounded-lg shadow cursor-not-allowed text-white font-medium bg-gray-400' disabled>
                           Declined
                         </button>
                       ) : (

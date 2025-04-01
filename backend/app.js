@@ -1044,6 +1044,11 @@ app.patch('/api/invitations/:id', async (req, res) => {
             return res.status(404).json({ error: 'Invitation not found' });
         }
 
+        const speaker = await speakerModel.findById(updatedInvitation.speakerId);
+        const conference = await conferenceModel.findOne({ title: updatedInvitation.title });
+        speaker.conferences.push(conference._id);
+        await speaker.save();
+
         res.json(updatedInvitation);
     } catch (error) {
         console.error('Error updating invitation status:', error);
@@ -1060,11 +1065,35 @@ app.get('/api/invitations/conference/:title', async (req, res) => {
         if (invitations.length === 0) {
             return res.status(404).json({ error: 'Invitations not found' });
         }
-        console.log("Invitations: ", invitations);
         res.json(invitations);
     } catch (error) {
         console.error('Error fetching invitations:', error);
         res.status(500).json({ error: 'Failed to fetch invitations' });
+    }
+});
+
+app.get("/api/speaker/events", authenticateToken, async (req, res) => {
+    try {
+        // Fetch the speaker's details using the authenticated user's ID
+        const speaker = await speakerModel.findById(req.user.userid).populate('conferences');
+
+        if (!speaker) {
+            return res.status(404).json({ error: "Speaker not found" });
+        }
+
+        // Extract conference IDs from the speaker's conferences
+        const conferenceIds = speaker.conferences.map(conference => conference._id);
+
+        // Fetch all conferences that match the extracted IDs
+        const matchedConferences = await conferenceModel.find({
+            _id: { $in: conferenceIds }
+        });
+
+        // Return the matched conferences
+        res.json(matchedConferences);
+    } catch (error) {
+        console.error("Error fetching events:", error);
+        res.status(500).json({ error: "Failed to fetch events" });
     }
 });
 

@@ -10,6 +10,7 @@ const speakerSchema = mongoose.Schema({
     bio: String,
     areaOfInterest: { type: String },
     password: String,
+    conferences: [{ type: mongoose.Schema.Types.ObjectId, ref: "Conference" }],
     location: { type: String },
     socialMediaLinks: {
         twitter: { type: String },
