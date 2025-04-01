@@ -13,6 +13,7 @@ const SpeakerDashboard = () => {
   const [invitations, setInvitations] = useState([]);
   const [conferenceTitles, setConferenceTitles] = useState([]);
   const [conferenceDetails, setConferenceDetails] = useState(null);
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
   const navigate = useNavigate();
 
   // Fetch speaker details
@@ -27,7 +28,34 @@ const SpeakerDashboard = () => {
       }
     };
 
+    // Fetch upcoming events
+    const fetchUpcomingEvents = async () => {
+      try {
+        const response = await axios.get("/api/speaker/upcoming-events", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Include auth token if required
+          },
+        });
+
+        // Format event dates to IST
+        const formattedEvents = response.data.map(event => ({
+          ...event,
+          startDate: new Date(event.startDate).toLocaleDateString("en-IN", {
+            timeZone: "Asia/Kolkata",
+            year: "numeric",
+            month: "long",
+            day: "2-digit"
+          }),
+        }));
+
+        setUpcomingEvents(formattedEvents);
+      } catch (error) {
+        console.error("Error fetching upcoming events:", error);
+      }
+    };
+
     fetchSpeakerDetails();
+    fetchUpcomingEvents();
   }, []); // This effect runs only once when the component mounts
 
   // Fetch invitations when the speakerId is available
@@ -110,6 +138,8 @@ const SpeakerDashboard = () => {
     }
   };
 
+
+
   // Function to get dynamic greeting
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -162,6 +192,35 @@ const SpeakerDashboard = () => {
               })}
             </div>
           )}
+
+          {/* Upcoming Events */}
+          <div className="mt-4">
+            <h3 className="text-base font-bold text-gray-600 openSans">Upcoming Events</h3>
+            {upcomingEvents.length > 0 ? (
+              <>
+                <ul className="mt-2 space-y-2">
+                  {upcomingEvents.map((event) => (
+                    <li key={event._id} className="p-3 bg-gray-200 rounded-md flex flex-col">
+                      <span className="font-semibold text-2xl montserrat">{event.title} ({event.mode})</span>
+                      <div className="flex gap-12">
+                        <span className="text-gray-500 text-xs"><FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />{event.startDate} {event.startTime}</span>
+                        <p className="text-gray-500 text-xs">
+                          <FontAwesomeIcon icon={event.mode === 'offline' ? faMapMarkerAlt : faLink} className="mr-2" />
+                          {event.mode === 'offline' ? event.venue : event.virtualLink}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                {/* View All Events Button */}
+                <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105 transition-transform duration-300 shadow-lg text-white text-base px-4 py-2 rounded-lg font-medium cursor-pointer mt-14" onClick={() => navigate('/speaker-sessions')}>
+                  View Your Events
+                </button>
+              </>
+            ) : (
+              <p className="text-gray-500">No upcoming events.</p>
+            )}
+          </div>
         </div>
       </div>
     </div>

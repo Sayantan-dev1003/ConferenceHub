@@ -11,7 +11,7 @@ const Sidebar3 = () => {
             <Link to="/speaker-dashboard" className="block p-2 hover:bg-gray-700 rounded">Dashboard</Link>
           </li>
           <li className="my-2">
-            <Link to="/my-sessions" className="block p-2 hover:bg-gray-700 rounded">My Sessions</Link>
+            <Link to="/speaker-sessions" className="block p-2 hover:bg-gray-700 rounded">My Sessions</Link>
           </li>
           <li className="my-2">
             <Link to="/session-analytics" className="block p-2 hover:bg-gray-700 rounded">Session Analytics</Link>

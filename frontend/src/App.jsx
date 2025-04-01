@@ -49,7 +49,7 @@ const App = () => {
         <Route path='/register-attendee/:id' element={<RegisterEvent />}></Route>
 
         <Route path='/speaker-dashboard' element={<SpeakerDasboard />}></Route>
-        <Route path='/my-sessions' element={<Sessions />}></Route>
+        <Route path='/speaker-sessions' element={<Sessions />}></Route>
         <Route path='/session-analytics' element={<SessionsAnalytics />}></Route>
         <Route path='/feedback-reviews' element={<FeedbackSpeaker />}></Route>
         <Route path='/speaker-settings' element={<SettingsSpeaker />}></Route>

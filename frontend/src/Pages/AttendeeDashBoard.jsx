@@ -85,7 +85,7 @@ const AttendeeDashBoard = () => {
                         <p className="text-gray-500 text-xs">
                           <FontAwesomeIcon icon={event.mode === 'offline' ? faMapMarkerAlt : faLink} className="mr-2" />
                           {event.mode === 'offline' ? event.venue : event.virtualLink}
-                        </p>
+                        </p> 
                       </div>
                     </li>
                   ))}

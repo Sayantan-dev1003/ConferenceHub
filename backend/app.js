@@ -688,10 +688,8 @@ app.get("/api/upcoming-events", authenticateToken, async (req, res) => {
 
         // Get the current date and calculate the date 10 days ahead
         const currentDate = new Date();
-        console.log(currentDate)
         const tenDaysLater = new Date();
         tenDaysLater.setDate(tenDaysLater.getDate() + 10);
-        console.log(tenDaysLater)
 
         // Fetch only conferences that match the extracted IDs and have startDate within the next 10 days
         const upcomingConferences = await conferenceModel.find({
@@ -1094,6 +1092,37 @@ app.get("/api/speaker/events", authenticateToken, async (req, res) => {
     } catch (error) {
         console.error("Error fetching events:", error);
         res.status(500).json({ error: "Failed to fetch events" });
+    }
+});
+
+app.get("/api/speaker/upcoming-events", authenticateToken, async (req, res) => {
+    try {
+        // Fetch the speaker's details using the authenticated user's ID
+        const speaker = await speakerModel.findById(req.user.userid).populate('conferences');
+
+        if (!speaker) {
+            return res.status(404).json({ error: "Speaker not found" });
+        }
+
+        // Extract conference IDs from the speaker's conferences
+        const conferenceIds = speaker.conferences.map(conference => conference._id);
+
+        // Get the current date and calculate the date 10 days ahead
+        const currentDate = new Date();
+        const tenDaysLater = new Date();
+        tenDaysLater.setDate(tenDaysLater.getDate() + 10);
+
+        // Fetch only conferences that match the extracted IDs and have startDate within the next 10 days
+        const upcomingConferences = await conferenceModel.find({
+            _id: { $in: conferenceIds },
+            startDate: { $gte: currentDate, $lte: tenDaysLater } // Filtering based on startDate
+        });
+
+        // Return the filtered upcoming conferences
+        res.json(upcomingConferences);
+    } catch (error) {
+        console.error("Error fetching upcoming events:", error);
+        res.status(500).json({ error: "Failed to fetch upcoming events" });
     }
 });
 
