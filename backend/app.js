@@ -8,6 +8,8 @@ import path from 'path';
 import multer from 'multer';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import http from 'http'; // Import http module
+import { Server } from 'socket.io';
 import attendeeModel from "./models/attendeeModel.js";
 import speakerModel from "./models/speakerModel.js";
 import organiserModel from "./models/organiserModel.js";
@@ -15,13 +17,18 @@ import publisherModel from "./models/publisherModel.js";
 import reviewerModel from "./models/reviewerModel.js";
 import conferenceModel from "./models/conferenceModel.js"
 import registrationModel from "./models/registrationModel.js"
+import invitationModel from "./models/invitationModel.js"
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000', // Adjust this to your client URL
+    methods: ['GET', 'POST'],
+    credentials: true
+}));
 app.use(express.static(path.join(__dirname, 'dist')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.set("view engine", "ejs");
@@ -55,6 +62,62 @@ const authenticateToken = (req, res, next) => {
         next();
     });
 };
+
+// Create an HTTP server
+const server = http.createServer(app);
+
+// Create a Socket.IO server
+const io = new Server(server);
+
+const speakerSockets = {}; // Store speaker socket IDs
+
+
+// io.on('connection', (socket) => {
+//     console.log('New client connected');
+
+//     const speakerId = socket.handshake.query.speakerId; 
+//     if (speakerId) {
+//         speakerSockets[speakerId] = socket.id; 
+//         console.log(`Speaker connected: ${speakerId}, Socket ID: ${socket.id}`);
+//     } else {
+//         console.log('No speaker ID provided');
+//     }
+
+//     socket.on('disconnect', () => {
+//         console.log('Client disconnected');
+//         delete speakerSockets[speakerId];
+//         console.log(`Speaker disconnected: ${speakerId}`);
+//     });
+// });
+
+io.on('connection', (socket) => {
+    console.log('New client connected');
+
+    const speakerId = socket.handshake.query.speakerId; 
+    if (speakerId) {
+        speakerSockets[speakerId] = socket.id; 
+        console.log(`Speaker connected: ${speakerId}, Socket ID: ${socket.id}`);
+
+        // Fetch pending invitations for the speaker
+        invitationModel.find({ speakerId, status: 'pending' })
+            .then(invitations => {
+                if (invitations.length > 0) {
+                    socket.emit('invitations', invitations); // Send invitations to the speaker
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching invitations:', error);
+            });
+    } else {
+        console.log('No speaker ID provided');
+    }
+
+    socket.on('disconnect', () => {
+        console.log('Client disconnected');
+        delete speakerSockets[speakerId];
+        console.log(`Speaker disconnected: ${speakerId}`);
+    });
+});
 
 // User Registration (Attendee or Speaker)
 app.post("/register", async (req, res) => {
@@ -650,7 +713,7 @@ app.get("/api/upcoming-events", authenticateToken, async (req, res) => {
 
 // Get Speaker Details
 app.get("/speaker", authenticateToken, async (req, res) => {
-    if (req.user.role !== "speaker") return res.sendStatus(403);
+    // if (req.user.role !== "speaker") return res.sendStatus(403);
     const speaker = await speakerModel.findById(req.user.userid);
     if (!speaker) return res.sendStatus(404);
     res.json(speaker);
@@ -750,7 +813,6 @@ app.get("/api/speaker-details/:conferenceName", authenticateToken, async (req, r
     if (!conference) return res.status(404).json({ error: "Conference not found" });
     const conferenceCategory = conference.category;
     const speakers = await speakerModel.find({ areaOfInterest: conferenceCategory });
-    console.log("Speaker: ", speakers);
     res.json(speakers || []);
 });
 
@@ -893,7 +955,69 @@ app.get("/api/conference/:id/registrations", authenticateToken, async (req, res)
     }
 });
 
+app.post('/api/invite-speaker', authenticateToken, async (req, res) => {
+    const { speakerId, title, message } = req.body;
+
+    try {
+        // Create a new invitation
+        const invitation = await invitationModel.create({
+            speakerId,
+            title,
+            message
+        });
+
+        // Emit an event to notify connected speakers
+        const speakerSocketId = speakerSockets[speakerId]; // Get the socket ID of the speaker
+        if (speakerSocketId) {
+            io.to(speakerSocketId).emit('invitation', invitation); // Send the invitation to the specific speaker
+        }
+
+        res.status(201).json({ message: "Invitation sent successfully", invitation });
+    } catch (error) {
+        console.error('Error inviting speaker:', error);
+        res.status(500).json({ error: "Failed to send invitation" });
+    }
+});
+
+// app.post('/api/invite-speaker', authenticateToken, async (req, res) => {
+//     const { speakerId, title } = req.body;
+
+//     try {
+//         const speaker = await speakerModel.findById(speakerId);
+//         if (!speaker) {
+//             return res.status(404).json({ error: "Speaker not found" });
+//         }
+
+//         const socketId = speakerSockets[speakerId];
+//         if (socketId) {
+//             io.to(socketId).emit('invitation', {
+//                 type: 'INVITATION',
+//                 message: `You have been invited to speak at a conference titled "${title}"`,
+//                 title: title,
+//             });
+//             res.status(200).json({ message: "Invitation sent successfully" });
+//         } else {
+//             console.log(`Speaker with ID ${speakerId} is not connected. Current sockets:`, speakerSockets);
+//             res.status(400).json({ error: "Speaker is not connected" });
+//         }
+//     } catch (error) {
+//         console.error('Error inviting speaker:', error);
+//         res.status(500).json({ error: "Failed to send invitation" });
+//     } 
+// });
+
 // User Logout
+
+app.get('/api/invitations', authenticateToken, async (req, res) => {
+    try {
+        const invitations = await invitationModel.find({ speakerId: req.user.userid, status: 'pending' });
+        res.json(invitations);
+    } catch (error) {
+        console.error('Error fetching invitations:', error);
+        res.status(500).json({ error: "Failed to fetch invitations" });
+    }
+});
+
 app.post("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
     res.redirect("/");
@@ -905,4 +1029,4 @@ app.get("*", authenticateToken, (req, res) => {
 });
 
 // Start the server
-app.listen(3000, () => console.log("Server started on port 3000"));
+server.listen(3000, () => console.log("Server started on port 3000"));

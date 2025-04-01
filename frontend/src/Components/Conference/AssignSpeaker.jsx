@@ -3,7 +3,7 @@ import Sidebar1 from './Sidebar1';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMapMarkerAlt, faEnvelope, faPhone, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
-import { faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons'
+import { faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { useParams } from 'react-router-dom';
 
 const AssignSpeaker = () => {
@@ -14,7 +14,6 @@ const AssignSpeaker = () => {
         const fetchSpeakers = async () => {
             try {
                 const response = await axios.get(`/api/speaker-details/${title}`);
-                console.log("API Response:", response.data); // Log the response data
                 setSpeakers(response.data);
             } catch (error) {
                 console.error('Error fetching speakers:', error);
@@ -24,7 +23,20 @@ const AssignSpeaker = () => {
         fetchSpeakers();
     }, [title]);
 
-    console.log("speakers:", speakers);
+    const handleInvite = async (speakerId, title) => {
+        try {
+            const response = await axios.post('/api/invite-speaker', {
+                speakerId,
+                title,
+                message: `You have been invited to speak at "${title}"`, // Customize the message
+            });
+            console.log("Invite Response:", response.data);
+            alert('Invitation sent successfully!');
+        } catch (error) {
+            console.error('Error sending invitation:', error);
+            alert('Failed to send invitation.');
+        }
+    };
 
     return (
         <div className='w-full min-h-screen flex justify-end items-start openSans'>
@@ -40,7 +52,9 @@ const AssignSpeaker = () => {
                                 <div>
                                     <div className='flex justify-between items-end'>
                                         <h3 className="text-xl font-semibold montserrat">{speaker.fullname}, <span className='text-xs font-light italic'>{speaker.affiliation}</span></h3>
-                                        <button className='bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-110 hover:shadow-lg transition-transform duration-300 text-white px-2 py-1 rounded text-xs cursor-pointer mt-4'>Invite <FontAwesomeIcon icon={faPaperPlane} /></button>
+                                        <button className='bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-110 hover:shadow-lg transition-transform duration-300 text-white px-2 py-1 rounded text-xs cursor-pointer mt-4'
+                                            onClick={() => handleInvite(speaker._id, title)}
+                                        >Invite <FontAwesomeIcon icon={faPaperPlane} /></button>
                                     </div>
                                     <p className='text-xs text-gray-500 mt-2'>{speaker.bio}</p>
                                     <p className='text-xs text-gray-500 mt-4'><FontAwesomeIcon icon={faMapMarkerAlt} className='mr-2 text-gray-400' />{speaker.location}</p>
