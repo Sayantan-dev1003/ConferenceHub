@@ -14,7 +14,7 @@ const SpeakerDashboard = () => {
     const fetchSpeakerDetails = async () => {
       try {
         const response = await axios.get('/speaker');
-        setSpeaker(response.data);
+        setSpeaker(response.data.fullname);
         setSpeakerId(response.data._id); // Set speakerId from the fetched data
         console.log('Speaker details:', response.data);
       } catch (error) {
@@ -72,19 +72,33 @@ const SpeakerDashboard = () => {
     }
   }, [speakerId]); // This effect runs whenever speakerId changes
 
+  // Function to get dynamic greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 18) return "Good Afternoon";
+    return "Good Evening";
+  };
+
   return (
     <div className='w-full min-h-screen flex justify-end items-start openSans'>
       <Sidebar3 />
       <div className='w-4/5 min-h-screen flex flex-col p-6 bg-gray-100 overflow-y-auto'>
-        <p>This is Speaker's Dashboard</p>
-        {invitations.length > 0 && (
-          <div>
-            <h2>Pending Invitations:</h2>
-            {invitations.map(inv => (
-              <p key={inv._id}>Invitation: {inv.message}</p>
-            ))}
-          </div>
-        )}
+        <div className='bg-white p-6 rounded-lg shadow-lg mb-6'>
+          <h2 className="text-2xl font-semibold text-gray-800 montserrat">
+            {getGreeting()}, {speaker} 👋
+          </h2>
+          <p className="text-gray-500 text-sm mt-1">Here’s what’s happening next:</p>
+
+          {invitations.length > 0 && (
+            <div className='flex flex-col gap-2'>
+              <h2 className="text-gray-600 font-bold text-base mt-8 openSans">Pending Invitations:</h2>
+              {invitations.map(inv => (
+                <p key={inv._id} className='bg-gray-200 rounded-lg px-4 py-2 text-gray-800 text-sm'>{inv.message}</p>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

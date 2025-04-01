@@ -73,7 +73,7 @@ const AttendeeDashBoard = () => {
 
           {/* Upcoming Events */}
           <div className="mt-4">
-            <h3 className="text-base font-bold text-gray-600 openSand">Upcoming Events</h3>
+            <h3 className="text-base font-bold text-gray-600 openSans">Upcoming Events</h3>
             {upcomingEvents.length > 0 ? (
               <>
                 <ul className="mt-2 space-y-2">
