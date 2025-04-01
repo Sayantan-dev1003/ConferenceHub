@@ -1029,6 +1029,45 @@ app.get("/api/conference/titles/:title", async (req, res) => {
     }
 });
 
+app.patch('/api/invitations/:id', async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    try {
+        const updatedInvitation = await invitationModel.findByIdAndUpdate(
+            id,
+            { status },
+            { new: true }
+        );
+
+        if (!updatedInvitation) {
+            return res.status(404).json({ error: 'Invitation not found' });
+        }
+
+        res.json(updatedInvitation);
+    } catch (error) {
+        console.error('Error updating invitation status:', error);
+        res.status(500).json({ error: 'Failed to update invitation status' });
+    }
+});
+
+app.get('/api/invitations/conference/:title', async (req, res) => {
+    const { title } = req.params;
+
+    try {
+        const invitations = await invitationModel.find({ title: title });
+
+        if (invitations.length === 0) {
+            return res.status(404).json({ error: 'Invitations not found' });
+        }
+        console.log("Invitations: ", invitations);
+        res.json(invitations);
+    } catch (error) {
+        console.error('Error fetching invitations:', error);
+        res.status(500).json({ error: 'Failed to fetch invitations' });
+    }
+});
+
 app.post("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
     res.redirect("/");

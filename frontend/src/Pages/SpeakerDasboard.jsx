@@ -4,14 +4,16 @@ import { io } from 'socket.io-client';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt, faMapMarkerAlt, faLink } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const SpeakerDashboard = () => {
   const [speaker, setSpeaker] = useState(null);
   const [speakerId, setSpeakerId] = useState('');
   const [socket, setSocket] = useState(null);
   const [invitations, setInvitations] = useState([]);
-  const [conferenceTitles, setConferenceTitles] = useState([]); // Array to store conference titles
-  const [conferenceDetails, setConferenceDetails] = useState(null); // State for conference details
+  const [conferenceTitles, setConferenceTitles] = useState([]);
+  const [conferenceDetails, setConferenceDetails] = useState(null);
+  const navigate = useNavigate();
 
   // Fetch speaker details
   useEffect(() => {
@@ -96,6 +98,18 @@ const SpeakerDashboard = () => {
     fetchConferenceDetails();
   }, [conferenceTitles]);
 
+  // Function to update invitation status
+  const updateInvitationStatus = async (invitationId, status) => {
+    try {
+      await axios.patch(`/api/invitations/${invitationId}`, { status });
+      console.log(`Invitation status updated to ${status}`);
+      // Update local state to reflect the change
+      setInvitations(prev => prev.map(inv => inv._id === invitationId ? { ...inv, status } : inv));
+    } catch (error) {
+      console.error('Error updating invitation status:', error);
+    }
+  };
+
   // Function to get dynamic greeting
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -118,8 +132,7 @@ const SpeakerDashboard = () => {
             <div className='flex flex-col gap-2'>
               <h2 className="text-gray-600 font-bold text-base mt-8 openSans">Pending Invitations:</h2>
 
-              {invitations.map(inv => {
-                // Find the corresponding conference details based on the invitation title
+              {invitations.filter(inv => inv.status !== 'Accepted' && inv.status !== 'Declined').map(inv => {
                 const conferenceDetail = conferenceDetails ? conferenceDetails.find(conf => conf.title === inv.title) : null;
 
                 return (
@@ -140,9 +153,9 @@ const SpeakerDashboard = () => {
                       <p className="text-blue-900 text-xs">Conference details not available</p>
                     )}
                     <div className='flex gap-2 text-xs justify-end mt-6'>
-                      <button className='py-1 px-2 rounded-lg shadow cursor-pointer text-blue-900 font-medium bg-gradient-to-r from-blue-300 to-violet-300 hover:from-blue-400 hover:to-violet-400'>Know more</button>
-                      <button className='py-1 px-2 rounded-lg shadow cursor-pointer text-white font-medium bg-green-500 hover:bg-green-600'>Accept</button>
-                      <button className='py-1 px-2 rounded-lg shadow cursor-pointer text-white font-medium bg-red-500 hover:bg-red-600'>Reject</button>
+                      <button className='py-1 px-2 rounded-lg shadow cursor-pointer text-blue-900 font-medium bg-gradient-to-r from-blue-300 to-violet-300 hover:from-blue-400 hover:to-violet-400' onClick={() => navigate(`/view-event/${conferenceDetail._id}`)}>Know more</button>
+                      <button className='py-1 px-2 rounded-lg shadow cursor-pointer text-white font-medium bg-green-500 hover:bg-green-600' onClick={() => updateInvitationStatus(inv._id, 'Accepted')}>Accept</button>
+                      <button className='py-1 px-2 rounded-lg shadow cursor-pointer text-white font-medium bg-red-500 hover:bg-red-600' onClick={() => updateInvitationStatus(inv._id, 'Declined')}>Reject</button>
                     </div>
                   </div>
                 );

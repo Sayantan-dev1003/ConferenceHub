@@ -32,6 +32,7 @@ import AssignSpeaker from "./Components/Conference/AssignSpeaker"
 import Settings from './Components/Conference/Settings'
 import ConferenceForm from './Components/Conference/ConferenceForm'
 import EditConference from "./Components/Conference/EditConference"
+import ViewEventSpeaker from "./Components/Speaker/ViewEventSpeaker"
 
 const App = () => {
   return (
@@ -64,6 +65,7 @@ const App = () => {
         <Route path='/attendee-management' element={<AttendeeManagement />}></Route>
         <Route path='/attendee-management/:id/registrations' element={<AttendeeData />}></Route>
         <Route path='/assign-speaker/:title' element={<AssignSpeaker />}></Route>
+        <Route path='/view-event/:id' element={<ViewEventSpeaker />}></Route>
         <Route path='/speaker-management' element={<SpeakerManagement />}></Route>
         <Route path='/settings' element={<Settings />}></Route>
 
