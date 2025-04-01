@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar3 from "../Components/Speaker/Sidebar3";
-import { io } from 'socket.io-client'; // Import Socket.IO client
+import { io } from 'socket.io-client';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendarAlt, faMapMarkerAlt, faLink } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 
 const SpeakerDashboard = () => {
   const [speaker, setSpeaker] = useState(null);
   const [speakerId, setSpeakerId] = useState('');
-  const [socket, setSocket] = useState(null); // State to hold the socket connection
-  const [invitations, setInvitations] = useState([]); // State to hold the invitations
+  const [socket, setSocket] = useState(null);
+  const [invitations, setInvitations] = useState([]);
+  const [conferenceTitles, setConferenceTitles] = useState([]); // Array to store conference titles
+  const [conferenceDetails, setConferenceDetails] = useState(null); // State for conference details
 
   // Fetch speaker details
   useEffect(() => {
@@ -15,8 +19,7 @@ const SpeakerDashboard = () => {
       try {
         const response = await axios.get('/speaker');
         setSpeaker(response.data.fullname);
-        setSpeakerId(response.data._id); // Set speakerId from the fetched data
-        console.log('Speaker details:', response.data);
+        setSpeakerId(response.data._id);
       } catch (error) {
         console.error('Error fetching speaker details:', error);
       }
@@ -34,6 +37,8 @@ const SpeakerDashboard = () => {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } // Adjust based on your auth method
           });
           setInvitations(response.data);
+          const titles = response.data.map(invitation => invitation.title);
+          setConferenceTitles(titles);
         } catch (error) {
           console.error('Error fetching invitations:', error);
         }
@@ -58,6 +63,8 @@ const SpeakerDashboard = () => {
         console.log('Received invitation:', data);
         setInvitations(prev => [...prev, data]); // Add the new invitation to the list
         alert(data.message);
+        // Update conference titles array with the new invitation's title
+        setConferenceTitles(prev => [...prev, data.title]);
       });
 
       newSocket.on('disconnect', () => {
@@ -71,6 +78,23 @@ const SpeakerDashboard = () => {
       console.log('Speaker ID is not available yet.'); // Log if speakerId is not set
     }
   }, [speakerId]); // This effect runs whenever speakerId changes
+
+  // Function to fetch conference details by title
+  useEffect(() => {
+    const fetchConferenceDetails = async () => {
+      if (conferenceTitles.length === 0) return; // Skip if no titles
+
+      try {
+        const response = await axios.get(`/api/conference/titles/${conferenceTitles.join(',')}`);
+        setConferenceDetails(response.data);
+      } catch (err) {
+        console.error('Error fetching conference details:', err);
+        setConferenceDetails(null); // Clear previous conference details
+      }
+    };
+
+    fetchConferenceDetails();
+  }, [conferenceTitles]);
 
   // Function to get dynamic greeting
   const getGreeting = () => {
@@ -93,9 +117,36 @@ const SpeakerDashboard = () => {
           {invitations.length > 0 && (
             <div className='flex flex-col gap-2'>
               <h2 className="text-gray-600 font-bold text-base mt-8 openSans">Pending Invitations:</h2>
-              {invitations.map(inv => (
-                <p key={inv._id} className='bg-gray-200 rounded-lg px-4 py-2 text-gray-800 text-sm'>{inv.message}</p>
-              ))}
+
+              {invitations.map(inv => {
+                // Find the corresponding conference details based on the invitation title
+                const conferenceDetail = conferenceDetails ? conferenceDetails.find(conf => conf.title === inv.title) : null;
+
+                return (
+                  <div key={inv._id} className='w-1/2 bg-gradient-to-r from-blue-100 to-violet-100 rounded-lg px-6 py-3 text-sm'>
+                    <p className='text-blue-950 text-xl font-bold montserrat'>{inv.title}</p>
+                    {conferenceDetail ? (
+                      <>
+                        <span className="text-blue-900 text-xs font-medium">
+                          <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
+                          {new Date(conferenceDetail.startDate).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', year: 'numeric', month: 'long', day: 'numeric' })} {conferenceDetail.startTime}
+                        </span>
+                        <p className="text-blue-900 text-xs font-medium">
+                          <FontAwesomeIcon icon={conferenceDetail.mode === 'offline' ? faMapMarkerAlt : faLink} className="mr-2" />
+                          {conferenceDetail.mode === 'offline' ? conferenceDetail.venue : conferenceDetail.virtualLink}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-blue-900 text-xs">Conference details not available</p>
+                    )}
+                    <div className='flex gap-2 text-xs justify-end mt-6'>
+                      <button className='py-1 px-2 rounded-lg shadow cursor-pointer text-blue-900 font-medium bg-gradient-to-r from-blue-300 to-violet-300 hover:from-blue-400 hover:to-violet-400'>Know more</button>
+                      <button className='py-1 px-2 rounded-lg shadow cursor-pointer text-white font-medium bg-green-500 hover:bg-green-600'>Accept</button>
+                      <button className='py-1 px-2 rounded-lg shadow cursor-pointer text-white font-medium bg-red-500 hover:bg-red-600'>Reject</button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

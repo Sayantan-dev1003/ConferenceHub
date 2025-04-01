@@ -63,14 +63,10 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// Create an HTTP server
+
 const server = http.createServer(app);
-
-// Create a Socket.IO server
 const io = new Server(server);
-
-const speakerSockets = {}; // Store speaker socket IDs
-
+const speakerSockets = {};
 
 // io.on('connection', (socket) => {
 //     console.log('New client connected');
@@ -1015,6 +1011,21 @@ app.get('/api/invitations', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error('Error fetching invitations:', error);
         res.status(500).json({ error: "Failed to fetch invitations" });
+    }
+});
+
+// Get Conference Details by Title
+app.get("/api/conference/titles/:title", async (req, res) => {
+    const conferenceTitles = req.params.title.split(',').map(title => title.trim()); // Extract and split the titles from the request parameters
+    try {
+        const conferences = await conferenceModel.find({ title: { $in: conferenceTitles } }); // Find conferences by titles
+        if (conferences.length === 0) {
+            return res.status(404).json({ error: "Conferences not found" }); // Return 404 if not found
+        }
+        res.json(conferences); // Return the found conference details
+    } catch (error) {
+        console.error("Error fetching conferences by titles:", error);
+        res.status(500).json({ error: "Failed to fetch conferences" }); // Handle any errors
     }
 });
 
