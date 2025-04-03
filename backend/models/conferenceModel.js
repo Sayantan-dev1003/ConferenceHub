@@ -21,7 +21,8 @@ const conferenceSchema = mongoose.Schema({
     registrationDeadline: { type: Date, required: true },
     targetAudience: { type: String, required: true },
     socialMediaLinks: { type: String },
-    registrations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Attendee' }]
+    registrations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Attendee' }],
+    speaker: [{ type: mongoose.Schema.Types.ObjectId, ref: 'speaker'}]
 });
 
 export default mongoose.model("Conference", conferenceSchema);

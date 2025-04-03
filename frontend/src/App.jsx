@@ -28,6 +28,7 @@ import ManageReviewers from './Components/Conference/ManageReviewers'
 import AttendeeManagement from './Components/Conference/AttendeeManagement'
 import AttendeeData from './Components/Conference/AttendeeData'
 import SpeakerManagement from './Components/Conference/SpeakerManagement'
+import SpeakerData from './Components/Conference/SpeakerData'
 import AssignSpeaker from "./Components/Conference/AssignSpeaker"
 import Settings from './Components/Conference/Settings'
 import ConferenceForm from './Components/Conference/ConferenceForm'
@@ -67,6 +68,7 @@ const App = () => {
         <Route path='/assign-speaker/:title' element={<AssignSpeaker />}></Route>
         <Route path='/view-event/:id' element={<ViewEventSpeaker />}></Route>
         <Route path='/speaker-management' element={<SpeakerManagement />}></Route>
+        <Route path='/speaker-management/:id' element={<SpeakerData />}></Route>
         <Route path='/settings' element={<Settings />}></Route>
 
 

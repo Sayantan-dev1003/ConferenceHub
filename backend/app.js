@@ -1045,7 +1045,10 @@ app.patch('/api/invitations/:id', async (req, res) => {
         const speaker = await speakerModel.findById(updatedInvitation.speakerId);
         const conference = await conferenceModel.findOne({ title: updatedInvitation.title });
         speaker.conferences.push(conference._id);
+        console.log("Conference:", conference)
+        conference.speaker.push(updatedInvitation.speakerId);
         await speaker.save();
+        await conference.save();
 
         res.json(updatedInvitation);
     } catch (error) {
@@ -1123,6 +1126,27 @@ app.get("/api/speaker/upcoming-events", authenticateToken, async (req, res) => {
     } catch (error) {
         console.error("Error fetching upcoming events:", error);
         res.status(500).json({ error: "Failed to fetch upcoming events" });
+    }
+});
+
+app.get("/api/speaker-invited/:id", authenticateToken, async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const conference = await conferenceModel.findById(id).populate('speaker');
+        
+        if (!conference) {
+            console.error("Conference not found for ID:", id);
+            return res.status(404).json({ error: "Conference not found" });
+        }
+
+        const speakers = await speakerModel.find({ _id: { $in: conference.speaker } });
+        console.log("Fetched Speakers:", speakers);
+
+        res.json(speakers);
+    } catch (error) {
+        console.error('Error fetching speaker details:', error);
+        res.status(500).json({ error: 'Failed to fetch speaker details' });
     }
 });
 
