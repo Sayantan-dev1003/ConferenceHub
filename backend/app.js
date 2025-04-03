@@ -1141,8 +1141,6 @@ app.get("/api/speaker-invited/:id", authenticateToken, async (req, res) => {
         }
 
         const speakers = await speakerModel.find({ _id: { $in: conference.speaker } });
-        console.log("Fetched Speakers:", speakers);
-
         res.json(speakers);
     } catch (error) {
         console.error('Error fetching speaker details:', error);
