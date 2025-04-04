@@ -6,34 +6,23 @@ import { useNavigate } from 'react-router-dom';
 
 const PaperSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
     const [userType, setUserType] = useState("publisher");
-    const [formDataReviewer, setFormDataReviewer] = useState({
+    const [formData, setFormData] = useState({
         fullname: "",
         email: "",
         phone: "",
         affiliation: "",
         areaOfInterest: "",
-        password: "",
-    });
-
-    const [formDataPublisher, setFormDataPublisher] = useState({
-        fullname: "",
-        email: "",
-        phone: "",
-        affiliation: "",
         designation: "",
         password: "",
     });
+
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const navigate = useNavigate();
 
     // Handle Input Change
     const handleChange = (e) => {
-        if (userType === "publisher") {
-            setFormDataPublisher({ ...formDataPublisher, [e.target.name]: e.target.value });
-        } else {
-            setFormDataReviewer({ ...formDataReviewer, [e.target.name]: e.target.value });
-        }
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     // Handle Form Submission
@@ -42,20 +31,12 @@ const PaperSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
         setError("");
         setSuccess("");
 
-        let payload;
-        if (userType === "reviewer") {
-            payload = {
-                ...formDataReviewer,
-                userType,
-                areaOfInterest: formDataReviewer.areaOfInterest.split(',').map(area => area.trim()),
-            };
-        } else {
-            payload = {
-                ...formDataPublisher,
-                userType,
-                designation: formDataPublisher.designation,
-            };
-        }
+        const payload = {
+            ...formData,
+            userType,
+            ...(userType === "reviewer" ? { areaOfInterest: formData.areaOfInterest.split(',').map(area => area.trim()) } : {}),
+            ...(userType === "publisher" ? { designation: formData.designation } : {}),
+        };
 
         try {
             const response = await axios.post("/paper/register", payload, {
@@ -63,29 +44,17 @@ const PaperSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
             });
 
             setSuccess(response.data.message);
-            if (userType === "reviewer") {
-                setFormDataReviewer({
-                    fullname: "",
-                    email: "",
-                    phone: "",
-                    affiliation: "",
-                    areaOfInterest: "",
-                    password: "",
-                });
-                setIsSignupOpen(false);
-                navigate('/reviewer-dashboard');
-            } else {
-                setFormDataPublisher({
-                    fullname: "",
-                    email: "",
-                    phone: "",
-                    affiliation: "",
-                    designation: "",
-                    password: "",
-                });
-                setIsSignupOpen(false);
-                navigate('/publisher-dashboard');
-            }
+            setFormData({
+                fullname: "",
+                email: "",
+                phone: "",
+                affiliation: "",
+                areaOfInterest: "",
+                designation: "",
+                password: "",
+            });
+            setIsSignupOpen(false);
+            navigate(userType === "reviewer" ? '/reviewer-dashboard' : '/publisher-dashboard');
         } catch (err) {
             setError(err.response?.data?.message || "Registration failed!");
         }
@@ -104,7 +73,6 @@ const PaperSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
 
     // Function to open login form when login is clicked
     const openLogin = () => {
-        console.log("login button is clicked")
         setIsSignupOpen(false);
         setIsSigninOpen(true);
     };
@@ -163,7 +131,7 @@ const PaperSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                             <input
                                 type="text"
                                 name="fullname"
-                                value={userType === "publisher" ? formDataPublisher.fullname : formDataReviewer.fullname}
+                                value={formData.fullname}
                                 onChange={handleChange}
                                 placeholder="Full Name"
                                 className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
@@ -175,7 +143,7 @@ const PaperSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                             <input
                                 type="email"
                                 name="email"
-                                value={userType === "publisher" ? formDataPublisher.email : formDataReviewer.email}
+                                value={formData.email}
                                 onChange={handleChange}
                                 placeholder="Email Address"
                                 className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
@@ -187,7 +155,7 @@ const PaperSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                             <input
                                 type="tel"
                                 name="phone"
-                                value={userType === "publisher" ? formDataPublisher.phone : formDataReviewer.phone}
+                                value={formData.phone}
                                 onChange={handleChange}
                                 placeholder="Phone Number"
                                 className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
@@ -199,7 +167,7 @@ const PaperSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                             <input
                                 type="text"
                                 name="affiliation"
-                                value={userType === "publisher" ? formDataPublisher.affiliation : formDataReviewer.affiliation}
+                                value={formData.affiliation}
                                 onChange={handleChange}
                                 placeholder="Affiliation"
                                 className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
@@ -214,7 +182,7 @@ const PaperSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                                 <input
                                     type="text"
                                     name="areaOfInterest"
-                                    value={formDataReviewer.areaOfInterest}
+                                    value={formData.areaOfInterest}
                                     onChange={handleChange}
                                     placeholder="Area of Interest"
                                     className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
@@ -230,7 +198,7 @@ const PaperSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                                 <input
                                     type="text"
                                     name="designation"
-                                    value={formDataReviewer.designation}
+                                    value={formData.designation}
                                     onChange={handleChange}
                                     placeholder="Designation"
                                     className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
@@ -243,7 +211,7 @@ const PaperSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                             <input
                                 type="password"
                                 name="password"
-                                value={userType === "publisher" ? formDataPublisher.password : formDataReviewer.password}
+                                value={formData.password}
                                 onChange={handleChange}
                                 placeholder="Password"
                                 className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"

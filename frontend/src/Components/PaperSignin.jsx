@@ -16,7 +16,7 @@ const PaperSignIn = ({ setIsSignupOpen, setIsSigninOpen }) => {
         setError("");
 
         try {
-            const response = await axios.post("/paper/login", {
+            await axios.post("/paper/login", {
                 email,
                 password,
                 role: userType,
@@ -24,7 +24,7 @@ const PaperSignIn = ({ setIsSignupOpen, setIsSigninOpen }) => {
 
             alert(`Login successful as ${userType}`);
             setIsSigninOpen(false);
-            navigate('/paperDashboard');
+            navigate(userType === "reviewer" ? '/reviewer-dashboard' : '/publisher-dashboard');
         } catch (err) {
             setError(err.response?.data || "Invalid email or password. Please try again.");
         }
@@ -39,7 +39,7 @@ const PaperSignIn = ({ setIsSignupOpen, setIsSigninOpen }) => {
         };
         window.addEventListener("click", handleClickOutside);
         return () => window.removeEventListener("click", handleClickOutside);
-    }, []); 
+    }, []);
 
     return (
         <>
@@ -69,13 +69,13 @@ const PaperSignIn = ({ setIsSignupOpen, setIsSigninOpen }) => {
                     <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full openSans">
                         <div className="relative">
                             <FontAwesomeIcon icon={faEnvelope} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                            <input type="email" placeholder="Email Address" className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none focus:border-blue-500"
+                            <input type="email" name="email" placeholder="Email Address" className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none focus:border-blue-500"
                                 value={email} onChange={(e) => setEmail(e.target.value)} required />
                         </div>
 
                         <div className="relative">
                             <FontAwesomeIcon icon={faLock} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                            <input type="password" placeholder="Password" className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none focus:border-blue-500"
+                            <input type="password" name="password" placeholder="Password" className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none focus:border-blue-500"
                                 value={password} onChange={(e) => setPassword(e.target.value)} required />
                         </div>
 

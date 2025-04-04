@@ -244,8 +244,8 @@ app.post("/paper/login", async (req, res) => {
     }
 
     const user = role === "publisher"
-        ? await publisherModelModel.findOne({ email })
-        : await reviewerModelModel.findOne({ email });
+        ? await publisherModel.findOne({ email })
+        : await reviewerModel.findOne({ email });
 
     if (!user) return res.status(401).json("Invalid email or password");
 
@@ -1147,6 +1147,15 @@ app.get("/api/speaker-invited/:id", authenticateToken, async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch speaker details' });
     }
 });
+
+// Get Publisher Details
+app.get("/publisher", authenticateToken, async (req, res) => {
+    if (req.user.role !== "publisher") return res.sendStatus(403);
+    const publisher = await publisherModel.findById(req.user.userid);
+    if (!publisher) return res.sendStatus(404);
+    res.json(publisher);
+});
+
 
 app.post("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
