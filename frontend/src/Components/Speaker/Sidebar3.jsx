@@ -17,6 +17,12 @@ const Sidebar3 = () => {
             <Link to="/session-analytics" className="block p-2 hover:bg-gray-700 rounded">Session Analytics</Link>
           </li>
           <li className="my-2">
+            <Link to="/speaker-submissions" className="block p-2 hover:bg-gray-700 rounded">My Submissions</Link>
+          </li>
+          <li className="my-2">
+            <Link to="/publish-paper" className="block p-2 hover:bg-gray-700 rounded">Publish Paper</Link>
+          </li>
+          <li className="my-2">
             <Link to="/feedback-reviews" className="block p-2 hover:bg-gray-700 rounded">Feedback & Reviews</Link>
           </li>
           <li className="my-2">
