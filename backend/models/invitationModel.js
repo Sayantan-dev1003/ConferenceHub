@@ -6,7 +6,7 @@ const invitationSchema = mongoose.Schema({
     speakerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Speaker', required: true },
     title: { type: String, required: true },
     message: { type: String, required: true },
-    status: { type: String, default: 'pending' }, // e.g., 'pending', 'accepted', 'declined'
+    status: { type: String, default: 'Pending' }, // e.g., 'pending', 'accepted', 'declined'
     createdAt: { type: Date, default: Date.now }
 });
 

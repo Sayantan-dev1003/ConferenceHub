@@ -13,11 +13,10 @@ import { Server } from 'socket.io';
 import attendeeModel from "./models/attendeeModel.js";
 import speakerModel from "./models/speakerModel.js";
 import organiserModel from "./models/organiserModel.js";
-import publisherModel from "./models/publisherModel.js";
-import reviewerModel from "./models/reviewerModel.js";
 import conferenceModel from "./models/conferenceModel.js"
 import registrationModel from "./models/registrationModel.js"
 import invitationModel from "./models/invitationModel.js"
+import paperModel from "./models/paperModel.js";
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -49,7 +48,7 @@ const storage = multer.diskStorage({
     },
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Middleware for token verification
 const authenticateToken = (req, res, next) => {
@@ -202,60 +201,6 @@ app.post("/organiser/login", async (req, res) => {
     res.cookie("token", token, { httpOnly: false, sameSite: 'Lax' });
 
     return res.status(200).json({ message: "Login Successful", userType: "organiser", fullname: user.fullname });
-});
-
-app.post("/paper/register", async (req, res) => {
-    const { fullname, email, phone, affiliation, password, userType, areaOfInterest, designation } = req.body;
-
-    // Ensure `userType` is valid
-    if (!userType || (userType !== "publisher" && userType !== "reviewer")) {
-        return res.status(400).json({ error: "Invalid user type" });
-    }
-
-    const existingUser = userType === "publisher"
-        ? await publisherModel.findOne({ $or: [{ email }, { fullname }] })
-        : await reviewerModel.findOne({ $or: [{ email }, { fullname }] });
-
-    if (existingUser) return res.status(401).json({ error: "User already exists" });
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    let user;
-    if (userType === "reviewer") {
-        if (!Array.isArray(areaOfInterest)) {
-            return res.status(400).json({ error: "areaOfInterest must be an array" });
-        }
-        user = await reviewerModel.create({ fullname, email, phone, affiliation, password: hashedPassword, areaOfInterest });
-    } else {
-        user = await publisherModel.create({ fullname, email, phone, affiliation, password: hashedPassword, designation });
-    }
-
-    const token = jwt.sign({ email: email, userid: user._id, userType: userType }, "Sayantan");
-    res.cookie("token", token, { httpOnly: true });
-    res.status(201).json({ message: "User registered successfully" });
-});
-
-app.post("/paper/login", async (req, res) => {
-    const { email, password, role } = req.body;
-
-    if (!role || (role !== "publisher" && role !== "reviewer")) {
-        return res.status(400).json({ error: "Invalid role" });
-    }
-
-    const user = role === "publisher"
-        ? await publisherModel.findOne({ email })
-        : await reviewerModel.findOne({ email });
-
-    if (!user) return res.status(401).json("Invalid email or password");
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json("Invalid email or password");
-
-    const token = jwt.sign({ email: email, userid: user._id, role: role }, "Sayantan");
-    res.cookie("token", token, { httpOnly: true });
-
-    return res.status(200).json({ message: "Login Successful", role });
 });
 
 // Conference Registration Endpoint
@@ -1004,7 +949,7 @@ app.post('/api/invite-speaker', authenticateToken, async (req, res) => {
 
 app.get('/api/invitations', authenticateToken, async (req, res) => {
     try {
-        const invitations = await invitationModel.find({ speakerId: req.user.userid, status: 'pending' });
+        const invitations = await invitationModel.find({ speakerId: req.user.userid, status: 'Pending' });
         res.json(invitations);
     } catch (error) {
         console.error('Error fetching invitations:', error);
@@ -1156,6 +1101,51 @@ app.get("/publisher", authenticateToken, async (req, res) => {
     res.json(publisher);
 });
 
+// Create a new endpoint for publishing papers
+app.post("/api/publish-paper", upload.single('file'), authenticateToken, async (req, res) => {
+    const { title, abstract, keywords, speakerId, conferenceId, sessionType } = req.body;
+
+    if (!title || !abstract || !req.file) {
+        return res.status(400).json({ error: "All fields are required, including the file." });
+    }
+
+    try {
+        const paperData = {
+            title,
+            abstract,
+            speakerId,
+            conferenceId,
+            status: "Under Review",
+            sessionType,
+            keywords,
+            file: {
+                data: req.file.buffer,
+                contentType: req.file.mimetype
+            }
+        };
+
+        const newPaper = await paperModel.create(paperData);
+
+        res.status(201).json({ message: "Paper submitted successfully", paper: newPaper });
+    } catch (error) {
+        console.error("Error submitting paper:", error);
+        res.status(500).json({ error: "Failed to submit paper" });
+    }
+});
+
+app.get('/api/publish/:selectedSession', async (req, res) => {
+    const { selectedSession } = req.params;
+    try {
+        const conference = await conferenceModel.findOne({ title: selectedSession });
+        if (!conference) {
+            return res.status(404).json({ error: "Conference not found" });
+        }
+        res.json(conference);
+    } catch (error) {
+        console.error("Error fetching conference by title:", error);
+        res.status(500).json({ error: "Failed to fetch conference" });
+    }
+});
 
 app.post("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
