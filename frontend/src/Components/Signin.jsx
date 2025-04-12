@@ -18,7 +18,7 @@ const SignIn = ({ setIsSignupOpen, setIsSigninOpen }) => {
         setSuccess("");
 
         try {
-            const response = await axios.post("/login", {
+            await axios.post("/login", {
                 email,
                 password,
                 role: userType,

@@ -8,7 +8,7 @@ import path from 'path';
 import multer from 'multer';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import http from 'http'; // Import http module
+import http from 'http';
 import { Server } from 'socket.io';
 import attendeeModel from "./models/attendeeModel.js";
 import speakerModel from "./models/speakerModel.js";
@@ -17,6 +17,7 @@ import conferenceModel from "./models/conferenceModel.js"
 import registrationModel from "./models/registrationModel.js"
 import invitationModel from "./models/invitationModel.js"
 import paperModel from "./models/paperModel.js";
+import reviewerModel from "./models/reviewerModel.js";
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -62,9 +63,9 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-
 const server = http.createServer(app);
 const io = new Server(server);
+const organizerSockets = {};
 const speakerSockets = {};
 
 // io.on('connection', (socket) => {
@@ -88,29 +89,40 @@ const speakerSockets = {};
 io.on('connection', (socket) => {
     console.log('New client connected');
 
-    const speakerId = socket.handshake.query.speakerId; 
-    if (speakerId) {
-        speakerSockets[speakerId] = socket.id; 
+    const { organizerId, speakerId } = socket.handshake.query;
+
+    if (organizerId) {
+        socket.organizerId = organizerId;  // Attach to socket
+        organizerSockets[organizerId] = socket.id;
+        console.log(`Organizer connected: ${organizerId}, Socket ID: ${socket.id}`);
+    } else if (speakerId) {
+        socket.speakerId = speakerId;  // Attach to socket
+        speakerSockets[speakerId] = socket.id;
         console.log(`Speaker connected: ${speakerId}, Socket ID: ${socket.id}`);
 
-        // Fetch pending invitations for the speaker
         invitationModel.find({ speakerId, status: 'pending' })
             .then(invitations => {
                 if (invitations.length > 0) {
-                    socket.emit('invitations', invitations); // Send invitations to the speaker
+                    socket.emit('invitations', invitations);
                 }
             })
             .catch(error => {
                 console.error('Error fetching invitations:', error);
             });
     } else {
-        console.log('No speaker ID provided');
+        console.log('No organizer or speaker ID provided');
     }
 
     socket.on('disconnect', () => {
         console.log('Client disconnected');
-        delete speakerSockets[speakerId];
-        console.log(`Speaker disconnected: ${speakerId}`);
+
+        if (socket.organizerId) {
+            delete organizerSockets[socket.organizerId];
+            console.log(`Organizer disconnected: ${socket.organizerId}`);
+        } else if (socket.speakerId) {
+            delete speakerSockets[socket.speakerId];
+            console.log(`Speaker disconnected: ${socket.speakerId}`);
+        }
     });
 });
 
@@ -201,6 +213,46 @@ app.post("/organiser/login", async (req, res) => {
     res.cookie("token", token, { httpOnly: false, sameSite: 'Lax' });
 
     return res.status(200).json({ message: "Login Successful", userType: "organiser", fullname: user.fullname });
+});
+
+// Reviewer Registration
+app.post("/reviewer/register", async (req, res) => {
+    const { fullname, email, phone, affiliation, areaOfInterest, password } = req.body;
+
+    // Check if the reviewer already exists
+    const existingReviewer = await reviewerModel.findOne({ $or: [{ email }, { fullname }] });
+    if (existingReviewer) return res.status(401).json({ error: "Reviewer already exists" });
+
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create a new reviewer
+    const reviewer = await reviewerModel.create({ fullname, email, phone, affiliation, areaOfInterest, password: hashedPassword });
+
+    // Create a JWT token
+    const token = jwt.sign({ email: email, userid: reviewer._id, userType: "reviewer" }, "Sayantan");
+    res.cookie("token", token, { httpOnly: false, sameSite: 'Lax' });
+    res.status(201).json({ message: "Reviewer registered successfully" });
+});
+
+// Reviewer Login
+app.post("/reviewer/login", async (req, res) => {
+    const { email, password } = req.body;
+
+    // Find the reviewer by email
+    const reviewer = await reviewerModel.findOne({ email });
+    if (!reviewer) return res.status(401).json("Invalid email or password");
+
+    // Compare the password
+    const isMatch = await bcrypt.compare(password, reviewer.password);
+    if (!isMatch) return res.status(401).json("Invalid email or password");
+
+    // Create a JWT token
+    const token = jwt.sign({ email: email, userid: reviewer._id, userType: "reviewer" }, "Sayantan");
+    res.cookie("token", token, { httpOnly: false, sameSite: 'Lax' });
+
+    return res.status(200).json({ message: "Login Successful", userType: "reviewer", fullname: reviewer.fullname });
 });
 
 // Conference Registration Endpoint
@@ -1079,7 +1131,7 @@ app.get("/api/speaker-invited/:id", authenticateToken, async (req, res) => {
 
     try {
         const conference = await conferenceModel.findById(id).populate('speaker');
-        
+
         if (!conference) {
             console.error("Conference not found for ID:", id);
             return res.status(404).json({ error: "Conference not found" });
@@ -1101,7 +1153,7 @@ app.get("/publisher", authenticateToken, async (req, res) => {
     res.json(publisher);
 });
 
-// Create a new endpoint for publishing papers
+// Paper publishing endpoint
 app.post("/api/publish-paper", upload.single('file'), authenticateToken, async (req, res) => {
     const { title, abstract, keywords, speakerId, conferenceId, sessionType } = req.body;
 
@@ -1125,6 +1177,19 @@ app.post("/api/publish-paper", upload.single('file'), authenticateToken, async (
         };
 
         const newPaper = await paperModel.create(paperData);
+        // Extract the organizer ID that has the specified conferenceId in their conferences array
+        const organizerWithConference = await organiserModel.findOne({ conferences: { $in: [conferenceId] } });
+        console.log("id: ", organizerWithConference._id);
+        const organiserSocketId = organizerSockets[organizerWithConference._id];
+        if (organiserSocketId) {
+            console.log('Organizer Socket ID:', organiserSocketId); // ✅ Debug this
+            console.log('Emitting paperData:', paperData); // ✅ Debug this
+
+            io.to(organiserSocketId).emit("paperData", {
+                message: "A new paper has been submitted!",
+                ...paperData
+            });
+        }
 
         res.status(201).json({ message: "Paper submitted successfully", paper: newPaper });
     } catch (error) {

@@ -12,7 +12,7 @@ const PublishPaper = () => {
     const [eventName, setEventName] = useState([]);
     const [eventId, setEventId] = useState();
     const [speakerId, setSpeakerId] = useState([]);
-    const [error, setError] = useState('');
+    // const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -44,10 +44,10 @@ const PublishPaper = () => {
         const acceptedTypes = ['application/pdf', 'application/vnd.ms-powerpoint', 'application/msword'];
         if (selectedFile && acceptedTypes.includes(selectedFile.type) && selectedFile.size <= 100 * 1024 * 1024) {
             setFile(selectedFile);
-            setError('');
+            // setError('');
         } else {
             setFile(null);
-            setError('Please upload a valid PDF, PPT, or Word document file (max 100MB).');
+            // setError('Please upload a valid PDF, PPT, or Word document file (max 100MB).');
         }
     };
 
@@ -56,12 +56,11 @@ const PublishPaper = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!isFormValid) {
-            setError('Please fill in all required fields and upload a valid PDF, PPT, or Word document.');
+            // setError('Please fill in all required fields and upload a valid PDF, PPT, or Word document.');
             return;
         }
         setLoading(true);
     
-        // Find the correct event index and ID
         const selectedIndex = eventName.findIndex(event => event === selectedSession);
         const selectedEventId = selectedIndex !== -1 ? eventId[selectedIndex] : null;
         const selectedSpeakerId = selectedIndex !== -1 ? speakerId[selectedIndex] : null;
@@ -85,12 +84,12 @@ const PublishPaper = () => {
                 alert("Paper submitted successfully!");
                 setLoading(false);
             } else {
-                setError('Failed to submit paper. Please try again.');
+                // setError('Failed to submit paper. Please try again.');
                 setLoading(false);
             }
         } catch (error) {
             console.error("Submission error:", error);
-            setError('Failed to submit paper. Please try again.');
+            // setError('Failed to submit paper. Please try again.');
             setLoading(false);
         }
     };    
@@ -111,7 +110,7 @@ const PublishPaper = () => {
                     <div>
                         <label className='block font-semibold mb-1 text-xs text-gray-600'>Upload Document (Max 100MB)</label>
                         <input type='file' name='file' accept='.pdf, .ppt, .doc' onChange={handleFileChange} className='w-full border p-2 rounded-md border-gray-300 focus:outline-blue-400 transition duration-200' />
-                        {file && <p className='text-sm text-green-600 mt-1'>Uploaded: {file.name}</p>}
+                        {/* {file && <p className='text-sm text-green-600 mt-1'>Uploaded: {file.name}</p>} */}
                     </div>
 
                     <div>
@@ -155,7 +154,7 @@ const PublishPaper = () => {
                         </div>
                     )}
 
-                    {error && <p className='text-red-500'>{error}</p>} 
+                    {/* {error && <p className='text-red-500'>{error}</p>}  */}
 
                     <button type='submit' disabled={!isFormValid || loading} className={`px-4 py-2 text-sm rounded-md text-white ${isFormValid ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'} ${loading ? 'bg-gray-400 cursor-not-allowed' : ''}`}>
                         {loading ? 'Submitting...' : 'Publish Paper'}

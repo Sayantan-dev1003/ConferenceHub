@@ -36,6 +36,8 @@ import ViewEventSpeaker from "./Components/Speaker/ViewEventSpeaker"
 import SpeakerSubmissions from './Components/Speaker/SpeakerSubmissions'
 import PublishPaper from './Components/Speaker/PublishPaper'
 
+import ReviewerDashboard from './Pages/ReviewerDashboard'
+
 const App = () => {
   return (
     <>
@@ -75,6 +77,8 @@ const App = () => {
         <Route path='/settings' element={<Settings />}></Route>
 
         <Route path='/paper-archives' element={<PaperArchives />}></Route>
+
+        <Route path='/reviewer-dashboard' element={<ReviewerDashboard />}></Route>
       </Routes>
     </>
   )

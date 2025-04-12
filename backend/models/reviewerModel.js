@@ -7,7 +7,7 @@ const reviewerSchema = mongoose.Schema({
     email: String,
     phone: Number,
     affiliation: String,
-    areaOfInterest: [String],
+    areaOfInterest: String,
     password: String
 });
 

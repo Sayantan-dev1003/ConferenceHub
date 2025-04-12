@@ -11,7 +11,7 @@ const CreateConf = () => {
     return (
         <>
             <Navbar />
-            <section className="w-full flex gap-12 items-start justify-start py-32 px-8 bg-gray-100 openSans">
+            <section className="w-full flex gap-12 items-start justify-start py-32 px-8 bg-gray-100 openSans"> 
                 <div className="w-[40vw] flex flex-col items-start justify-start">
                     <h3 className="text-gray-500 font-semibold uppercase tracking-wide">
                         Create Your Conference

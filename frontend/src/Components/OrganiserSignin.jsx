@@ -15,9 +15,10 @@ const OrganiserSignin = ({ setIsSignupOpen, setIsSigninOpen }) => {
         setError("");
 
         try {
-            const response = await axios.post("/organiser/login", {
+            await axios.post("/organiser/login", {
                 email,
                 password,
+                role: "organiser", // Passed userType as "organiser"
             }, { withCredentials: true });
 
             alert("Signin as Organiser.");

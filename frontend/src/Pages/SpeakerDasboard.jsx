@@ -16,7 +16,6 @@ const SpeakerDashboard = () => {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const navigate = useNavigate();
 
-  // Fetch speaker details
   useEffect(() => {
     const fetchSpeakerDetails = async () => {
       try {
@@ -28,16 +27,14 @@ const SpeakerDashboard = () => {
       }
     };
 
-    // Fetch upcoming events
     const fetchUpcomingEvents = async () => {
       try {
         const response = await axios.get("/api/speaker/upcoming-events", {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Include auth token if required
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
 
-        // Format event dates to IST
         const formattedEvents = response.data.map(event => ({
           ...event,
           startDate: new Date(event.startDate).toLocaleDateString("en-IN", {
@@ -56,15 +53,14 @@ const SpeakerDashboard = () => {
 
     fetchSpeakerDetails();
     fetchUpcomingEvents();
-  }, []); // This effect runs only once when the component mounts
+  }, []);
 
-  // Fetch invitations when the speakerId is available
   useEffect(() => {
     const fetchInvitations = async () => {
       if (speakerId) {
         try {
           const response = await axios.get('/api/invitations', {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } // Adjust based on your auth method
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
           });
           setInvitations(response.data);
           const titles = response.data.map(invitation => invitation.title);
@@ -76,7 +72,7 @@ const SpeakerDashboard = () => {
     };
 
     fetchInvitations();
-  }, [speakerId]); // This effect runs whenever speakerId changes
+  }, [speakerId]);
 
   // Establish Socket.IO connection when speakerId is available
   useEffect(() => {
@@ -137,8 +133,6 @@ const SpeakerDashboard = () => {
       console.error('Error updating invitation status:', error);
     }
   };
-
-
 
   // Function to get dynamic greeting
   const getGreeting = () => {

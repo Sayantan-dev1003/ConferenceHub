@@ -31,7 +31,8 @@ const OrganiserSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
         let payload;
 
         payload = {
-            ...formDataOrganiser
+            ...formDataOrganiser,
+            usertype: "organiser"
         };
 
         try {

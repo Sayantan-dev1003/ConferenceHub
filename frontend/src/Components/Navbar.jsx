@@ -4,11 +4,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import Signup from "../Components/Signup";
 import Signin from "../Components/Signin";
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [isSigninOpen, setIsSigninOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -53,9 +55,19 @@ const Navbar = () => {
               Contact
             </ScrollLink>
 
-            <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105 transition-transform duration-300 shadow-lg text-white text-sm px-6 py-2 rounded-full font-semibold cursor-pointer" onClick={() => setIsSignupOpen(true)}>
-              Register
-            </button>
+            <div className="p-[2px] bg-gradient-to-r from-blue-500 to-purple-600 rounded-full inline-block transition-transform duration-300 shadow-lg">
+              <button
+                className="bg-[#11161ce0] rounded-full text-white text-sm px-[22px] py-[6px] font-semibold cursor-pointer w-full h-full hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600"
+                onClick={() => navigate("/paper-archives")}
+              >
+                Browse Papers
+              </button>
+            </div>
+            <div className='p-[2px] bg-gradient-to-r from-blue-500 to-purple-600 rounded-full inline-block transition-transform duration-300 shadow-lg'>
+              <button className="bg-[#11161ce0] rounded-full text-white text-sm px-[22px] py-[6px] font-semibold cursor-pointer w-full h-full hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600" onClick={() => setIsSignupOpen(true)}>
+                Register
+              </button>
+            </div>
           </div>
         </div>
       </nav>

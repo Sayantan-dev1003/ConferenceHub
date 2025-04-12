@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Navbar from '../Components/Navbar'
 import PaperConf from "../assets/Paper.jpeg"
-import { useNavigate } from 'react-router-dom'
+import ReviewerSignup from '../Components/ReviewerSignup';
+import ReviewerSignin from '../Components/ReviewerSignin'; useState
 
 const Paper = () => {
-    const navigate = useNavigate();
+    const [isSignupOpen, setIsSignupOpen] = useState(false);
+    const [isSigninOpen, setIsSigninOpen] = useState(false);
 
     return (
         <>
@@ -25,23 +27,24 @@ const Paper = () => {
                         Browse Conference Papers
                     </h3>
                     <h2 className="text-5xl font-bold text-blue-800 mt-2 leading-tight mb-2 moonDance">
-                        Open Access to Research, Anytime, Anywhere
+                        Empowering Publication Through Expert Reviews
                     </h2>
                     <p className="text-gray-600 leading-relaxed">
-                        <b>ConferenceHub</b> makes exploring research papers effortless for everyone — whether you're an attendee, researcher, or simply curious.
+                        <b>Reviewers</b> play a vital role in maintaining the quality and integrity of the research shared on <b>ConferenceHub</b>.
                     </p>
-                    <ul className="list-disc pl-5 mt-2 text-gray-600">
-                        <li>Browse a growing archive of conference papers using powerful filters and search tools by title, topic, author, or conference name.</li>
-                        <li>Read and download high-quality papers in one click</li>
-                        <li>Explore cutting-edge research from experts across fields and conferences.</li>
-                        <li>Leave feedback, save favorites, or rate papers if signed in — enhancing interaction and recognition for authors.</li>
+                    <ul className="text-gray-600 leading-relaxed mt-4 list-disc list-inside">
+                        <li>Assigned by organizers, reviewers are responsible for evaluating submitted conference papers based on originality, relevance, and technical accuracy.</li>
+                        <li>Their expert recommendations and constructive feedback help determine whether a paper is ready for publication.</li>
+                        <li>This transparent review process ensures only high-quality, peer-reviewed content is made available to the community.</li>
                     </ul>
 
-                    <button className="bg-gradient-to-r mt-6 from-blue-500 to-purple-600 hover:scale-105 transition-transform duration-300 shadow-lg text-white px-6 py-2 rounded-full font-semibold cursor-pointer" onClick={() => navigate("/paper-archives")}>
+                    <button className="bg-gradient-to-r mt-6 from-blue-500 to-purple-600 hover:scale-105 transition-transform duration-300 shadow-lg text-white px-6 py-2 rounded-full font-semibold cursor-pointer" onClick={() => setIsSigninOpen(true)}>
                         Browse Conference Papers
                     </button>
                 </div>
             </section>
+            {isSignupOpen && <ReviewerSignup setIsSignupOpen={setIsSignupOpen} setIsSigninOpen={setIsSigninOpen} />}
+            {isSigninOpen && <ReviewerSignin setIsSignupOpen={setIsSignupOpen} setIsSigninOpen={setIsSigninOpen} />}
         </>
     )
 }
