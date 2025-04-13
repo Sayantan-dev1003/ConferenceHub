@@ -67,6 +67,7 @@ const server = http.createServer(app);
 const io = new Server(server);
 const organizerSockets = {};
 const speakerSockets = {};
+const pendingNotifications = {};
 
 // io.on('connection', (socket) => {
 //     console.log('New client connected');
@@ -88,15 +89,28 @@ const speakerSockets = {};
 
 io.on('connection', (socket) => {
     console.log('New client connected');
-
     const { organizerId, speakerId } = socket.handshake.query;
 
     if (organizerId) {
-        socket.organizerId = organizerId;  // Attach to socket
+        socket.organizerId = organizerId;
         organizerSockets[organizerId] = socket.id;
         console.log(`Organizer connected: ${organizerId}, Socket ID: ${socket.id}`);
+
+        // Emit but don't delete from queue
+        if (pendingNotifications[organizerId]) {
+            pendingNotifications[organizerId].forEach(notification => {
+                socket.emit("paperData", notification);
+            });
+        }
+
+        // Listen for 'clearNotifications' when button is clicked
+        socket.on('clearNotifications', () => {
+            console.log(`Clearing notifications for organizer ${organizerId}`);
+            delete pendingNotifications[organizerId];
+        });
+
     } else if (speakerId) {
-        socket.speakerId = speakerId;  // Attach to socket
+        socket.speakerId = speakerId;
         speakerSockets[speakerId] = socket.id;
         console.log(`Speaker connected: ${speakerId}, Socket ID: ${socket.id}`);
 
@@ -710,6 +724,18 @@ app.get("/speaker", authenticateToken, async (req, res) => {
     res.json(speaker);
 });
 
+// Get a specific speaker by ID
+app.get("/api/speaker/paper/:id", async (req, res) => {
+    try {
+        const speaker = await speakerModel.findById(req.params.id);
+        if (!speaker) return res.status(404).json({ error: "Speaker not found" });
+        res.json(speaker);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch speaker" });
+    }
+});
+
 // Update Speaker Endpoint
 app.put('/api/update/speaker', authenticateToken, async (req, res) => {
     const { fullname, email, phone, affiliation, bio, areaOfInterest, location, socialMediaLinks } = req.body;
@@ -1154,7 +1180,7 @@ app.get("/publisher", authenticateToken, async (req, res) => {
 });
 
 // Paper publishing endpoint
-app.post("/api/publish-paper", upload.single('file'), authenticateToken, async (req, res) => {
+app.post("/api/submit-paper", upload.single('file'), authenticateToken, async (req, res) => {
     const { title, abstract, keywords, speakerId, conferenceId, sessionType } = req.body;
 
     if (!title || !abstract || !req.file) {
@@ -1167,7 +1193,7 @@ app.post("/api/publish-paper", upload.single('file'), authenticateToken, async (
             abstract,
             speakerId,
             conferenceId,
-            status: "Under Review",
+            status: "Submitted",
             sessionType,
             keywords,
             file: {
@@ -1177,19 +1203,38 @@ app.post("/api/publish-paper", upload.single('file'), authenticateToken, async (
         };
 
         const newPaper = await paperModel.create(paperData);
-        // Extract the organizer ID that has the specified conferenceId in their conferences array
         const organizerWithConference = await organiserModel.findOne({ conferences: { $in: [conferenceId] } });
-        console.log("id: ", organizerWithConference._id);
-        const organiserSocketId = organizerSockets[organizerWithConference._id];
-        if (organiserSocketId) {
-            console.log('Organizer Socket ID:', organiserSocketId); // ✅ Debug this
-            console.log('Emitting paperData:', paperData); // ✅ Debug this
 
+        if (!organizerWithConference) {
+            return res.status(404).json({ error: "Organizer not found for the given conference." });
+        }
+
+        const organizerId = organizerWithConference._id.toString();
+        const organiserSocketId = organizerSockets[organizerId];
+
+        const notification = {
+            message: "A new paper has been submitted!",
+            ...paperData,
+            paperId: newPaper._id.toString() // Added paperId to the notification
+        };
+
+        if (organiserSocketId) {
             io.to(organiserSocketId).emit("paperData", {
                 message: "A new paper has been submitted!",
-                ...paperData
+                ...paperData,
+                paperId: newPaper._id.toString() // Added paperId to the emitted data
             });
-        }
+        } else {
+            // Queue it in memory
+            if (!pendingNotifications[organizerWithConference._id.toString()]) {
+                pendingNotifications[organizerWithConference._id.toString()] = [];
+            }
+            pendingNotifications[organizerWithConference._id.toString()].push({
+                message: "A new paper has been submitted!",
+                ...paperData,
+                paperId: newPaper._id.toString() // Added paperId to the queued data
+            });
+        }        
 
         res.status(201).json({ message: "Paper submitted successfully", paper: newPaper });
     } catch (error) {
@@ -1198,7 +1243,7 @@ app.post("/api/publish-paper", upload.single('file'), authenticateToken, async (
     }
 });
 
-app.get('/api/publish/:selectedSession', async (req, res) => {
+app.get('/api/submit/:selectedSession', async (req, res) => {
     const { selectedSession } = req.params;
     try {
         const conference = await conferenceModel.findOne({ title: selectedSession });
@@ -1211,6 +1256,49 @@ app.get('/api/publish/:selectedSession', async (req, res) => {
         res.status(500).json({ error: "Failed to fetch conference" });
     }
 });
+
+// Get Reviewer Details
+app.get("/reviewers", authenticateToken, async (req, res) => {
+    const reviewers = await reviewerModel.find();
+    if (!reviewers) return res.sendStatus(404);
+    res.json(reviewers);
+});
+
+app.post('/assign-reviewer/:paperId/:reviewerId', async (req, res) => {
+    const { paperId, reviewerId } = req.params;
+  
+    try {
+      const paper = await paperModel.findById(paperId);
+      const reviewer = await reviewerModel.findById(reviewerId);
+  
+      if (!paper || !reviewer) {
+        return res.status(404).json({ message: "Paper or Reviewer not found" });
+      }
+  
+      // Add reviewer to paper if not already added
+      if (!paper.paperReviewer.includes(reviewerId)) {
+        paper.paperReviewer.push(reviewerId);
+      }
+  
+      // Change paper status to "Under Review" only if the length of the array of paperReviewer >= 2
+      if (paper.paperReviewer.length >= 2) {
+          paper.status = "Under Review";
+      }
+  
+      // Add paper to reviewer's paper list
+      if (!reviewer.paperReview.includes(paperId)) {
+        reviewer.paperReview.push(paperId);
+      }
+  
+      await paper.save();
+      await reviewer.save();
+  
+      res.status(200).json({ message: "Reviewer assigned successfully!" });
+    } catch (error) {
+      console.error("Assignment Error:", error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
 
 app.post("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });

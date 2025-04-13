@@ -246,6 +246,7 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                                     value={formDataSpeaker.bio}
                                     onChange={handleChange}
                                     placeholder="Your Bio"
+                                    rows={1}
                                     className="w-full pl-10 pr-3 py-2 border-2 border-blue-300 rounded-lg outline-none transition-all duration-300 focus:border-blue-500"
                                     required
                                 ></textarea>

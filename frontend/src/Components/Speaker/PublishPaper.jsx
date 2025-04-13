@@ -29,7 +29,7 @@ const PublishPaper = () => {
 
         const fetchParticularConf = async () => {
             try {
-                await axios.get(`/api/publish/${selectedSession}`);
+                await axios.get(`/api/submit/${selectedSession}`);
             } catch (error) {
                 console.error("Error fetching conferences:", error);
             }
@@ -75,7 +75,7 @@ const PublishPaper = () => {
         formData.append('file', file);
     
         try {
-            const response = await axios.post('/api/publish-paper', formData, {
+            const response = await axios.post('/api/submit-paper', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

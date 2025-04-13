@@ -66,7 +66,7 @@ const App = () => {
         <Route path="/conference/:id" element={<ConferenceDetail />} />
         <Route path="/edit-conference/:id" element={<EditConference />} />
         <Route path='/view-submissions' element={<ViewSubmissions />}></Route>
-        <Route path='/assign-reviewers' element={<AssignReviewers />}></Route>
+        <Route path='/assign-reviewers/:paperId' element={<AssignReviewers />}></Route>
         <Route path='/manage-reviewers' element={<ManageReviewers />}></Route>
         <Route path='/attendee-management' element={<AttendeeManagement />}></Route>
         <Route path='/attendee-management/:id/registrations' element={<AttendeeData />}></Route>

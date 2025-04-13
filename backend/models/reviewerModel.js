@@ -8,7 +8,8 @@ const reviewerSchema = mongoose.Schema({
     phone: Number,
     affiliation: String,
     areaOfInterest: String,
-    password: String
+    password: String,
+    paperReview: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Paper' }]
 });
 
 export default mongoose.model("Reviewer", reviewerSchema);

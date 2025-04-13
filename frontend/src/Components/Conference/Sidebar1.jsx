@@ -26,9 +26,6 @@ const Sidebar1 = () => {
             <Link to="/view-submissions" className="block p-2 hover:bg-gray-700 rounded">View Submissions</Link>
           </li>
           <li className="my-2">
-            <Link to="/assign-reviewers" className="block p-2 hover:bg-gray-700 rounded">Assign Reviewers</Link>
-          </li>
-          <li className="my-2">
             <Link to="/manage-reviewers" className="block p-2 hover:bg-gray-700 rounded">Manage Reviewers</Link>
           </li>
           <li className="my-2">

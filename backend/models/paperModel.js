@@ -8,7 +8,7 @@ const paperSchema = mongoose.Schema({
     speakerId: { type: mongoose.Schema.Types.ObjectId, ref: "speaker" },
     conferenceId: { type: mongoose.Schema.Types.ObjectId, ref: "Conference", default: null },
     submissionDate: { type: Date, default: Date.now },
-    status: { type: String, enum: ["Under Review", "Rejected", "Published"], default: "Submitted" },
+    status: { type: String, enum: ["Submitted", "Under Review", "Rejected", "Published"], default: "Submitted" },
     sessionType: { type: String, enum: ["Independent Publication", "Session Publication"], required: true },
     keywords: [String],
     file: {
@@ -26,7 +26,8 @@ const paperSchema = mongoose.Schema({
             type: String,
             required: true
         }
-    }
+    },
+    paperReviewer: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Reviewer' }]
 });
 
 export default mongoose.model("Paper", paperSchema);
