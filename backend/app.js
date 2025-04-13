@@ -1234,7 +1234,7 @@ app.post("/api/submit-paper", upload.single('file'), authenticateToken, async (r
                 ...paperData,
                 paperId: newPaper._id.toString() // Added paperId to the queued data
             });
-        }        
+        }
 
         res.status(201).json({ message: "Paper submitted successfully", paper: newPaper });
     } catch (error) {
@@ -1266,39 +1266,69 @@ app.get("/reviewers", authenticateToken, async (req, res) => {
 
 app.post('/assign-reviewer/:paperId/:reviewerId', async (req, res) => {
     const { paperId, reviewerId } = req.params;
-  
+
     try {
-      const paper = await paperModel.findById(paperId);
-      const reviewer = await reviewerModel.findById(reviewerId);
-  
-      if (!paper || !reviewer) {
-        return res.status(404).json({ message: "Paper or Reviewer not found" });
-      }
-  
-      // Add reviewer to paper if not already added
-      if (!paper.paperReviewer.includes(reviewerId)) {
-        paper.paperReviewer.push(reviewerId);
-      }
-  
-      // Change paper status to "Under Review" only if the length of the array of paperReviewer >= 2
-      if (paper.paperReviewer.length >= 2) {
-          paper.status = "Under Review";
-      }
-  
-      // Add paper to reviewer's paper list
-      if (!reviewer.paperReview.includes(paperId)) {
-        reviewer.paperReview.push(paperId);
-      }
-  
-      await paper.save();
-      await reviewer.save();
-  
-      res.status(200).json({ message: "Reviewer assigned successfully!" });
+        const paper = await paperModel.findById(paperId);
+        const reviewer = await reviewerModel.findById(reviewerId);
+
+        if (!paper || !reviewer) {
+            return res.status(404).json({ message: "Paper or Reviewer not found" });
+        }
+
+        // Add reviewer to paper if not already added
+        if (!paper.paperReviewer.includes(reviewerId)) {
+            paper.paperReviewer.push(reviewerId);
+        }
+
+        // Change paper status to "Under Review" only if the length of the array of paperReviewer >= 2
+        if (paper.paperReviewer.length >= 2 && paper.status === "Submitted") {
+            paper.status = "Under Review";
+
+            // 🔔 Remove notification for organizer and notify frontend
+            for (let orgId in pendingNotifications) {
+                if (pendingNotifications[orgId]) {
+                    // Remove notification related to this paper
+                    pendingNotifications[orgId] = pendingNotifications[orgId].filter(
+                        (notif) => notif.paperId !== paperId
+                    );
+
+                    // If organizer is connected, send event to remove from UI
+                    const socketId = organizerSockets[orgId];
+                    if (socketId) {
+                        io.to(socketId).emit("clearNotifications");
+                    }
+                }
+            }
+        }
+
+        // Add paper to reviewer's paper list
+        if (!reviewer.paperReview.includes(paperId)) {
+            reviewer.paperReview.push(paperId);
+        }
+
+        // Add notification for the organizer
+        for (let orgId in organizerSockets) {
+            if (!pendingNotifications[orgId]) {
+                pendingNotifications[orgId] = [];
+            }
+
+            pendingNotifications[orgId].push({
+                paperId,
+                message: `Reviewer assigned to paper: ${paper.title}`,
+                title: paper.title,
+                speakerId: paper.speakerId // Assuming you have a speakerId in the paper model
+            });
+        }
+
+        await paper.save();
+        await reviewer.save();
+
+        res.status(200).json({ message: "Reviewer assigned successfully!" });
     } catch (error) {
-      console.error("Assignment Error:", error);
-      res.status(500).json({ message: "Internal Server Error" });
+        console.error("Assignment Error:", error);
+        res.status(500).json({ message: "Internal Server Error" });
     }
-  });
+});
 
 app.post("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });

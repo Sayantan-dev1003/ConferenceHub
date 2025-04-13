@@ -31,7 +31,6 @@ const ConferenceDashboard = () => {
   // Establish Socket.IO connection when organiser is available
   useEffect(() => {
     if (organiserId) {
-      console.log('Connecting with organiser ID:', organiserId);
       const newSocket = io('http://localhost:3000', { query: { organizerId: organiserId } });
       setSocket(newSocket); // Set the socket connection
 
@@ -40,14 +39,11 @@ const ConferenceDashboard = () => {
       });
 
       newSocket.on('paperData', async (data) => {
-        console.log('Received paper review notification:', data);
-
         const conferenceResponse = await axios.get(`/api/conference/${data.conferenceId}`);
         console.log("conferenceResponse: ", conferenceResponse);
         setConferenceName(conferenceResponse.data.title);
-        
+
         const speakerResponse = await axios.get(`/api/speaker/paper/${data.speakerId}`);
-        console.log("speakerResponse: ", speakerResponse);
         setSpeakerName(speakerResponse.data.fullname);
         setMessages(prev => [...prev, { message: 'New paper submitted!', ...data }]);
       });
@@ -63,8 +59,6 @@ const ConferenceDashboard = () => {
       console.log('Organiser ID is not available yet.'); // Log if organiser ID is not set
     }
   }, [organiserId]);
-  console.log("conferenceName: ", conferenceName);
-  console.log("speakerName: ", speakerName);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -99,9 +93,6 @@ const ConferenceDashboard = () => {
                     <button
                       className='py-1 px-2.5 rounded-lg text-xs shadow cursor-pointer text-blue-900 font-medium bg-gradient-to-r from-blue-300 to-violet-300 hover:from-blue-400 hover:to-violet-400'
                       onClick={() => {
-                        if (socket) {
-                          socket.emit('clearNotifications');
-                        }
                         navigate(`/assign-reviewers/${message.paperId}`);
                       }}
                     >
