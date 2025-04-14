@@ -1171,12 +1171,11 @@ app.get("/api/speaker-invited/:id", authenticateToken, async (req, res) => {
     }
 });
 
-// Get Publisher Details
-app.get("/publisher", authenticateToken, async (req, res) => {
-    if (req.user.role !== "publisher") return res.sendStatus(403);
-    const publisher = await publisherModel.findById(req.user.userid);
-    if (!publisher) return res.sendStatus(404);
-    res.json(publisher);
+// Get Reviewer Details
+app.get("/reviewer", authenticateToken, async (req, res) => {
+    const reviewer = await reviewerModel.findById(req.user.userid);
+    if (!reviewer) return res.sendStatus(404);
+    res.json(reviewer);
 });
 
 // Paper publishing endpoint
@@ -1345,6 +1344,91 @@ app.get('/api/paper/submissions', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error("Error fetching papers with details:", error);
         res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
+// Update Reviewer Endpoint
+app.put('/api/reviewer/update', authenticateToken, async (req, res) => {
+    const { fullname, email, phone, affiliation, areaOfInterest, location, socialMediaLinks } = req.body;
+
+    try {
+        const reviewer = await reviewerModel.findById(req.user.userid);
+        if (!reviewer) {
+            return res.status(404).json({ error: "Reviewer not found" });
+        }
+
+        // Update the reviewer's information
+        reviewer.fullname = fullname || reviewer.fullname;
+        reviewer.email = email || reviewer.email; 
+        reviewer.phone = phone || reviewer.phone;
+        reviewer.affiliation = affiliation || reviewer.affiliation;
+        reviewer.areaOfInterest = areaOfInterest || reviewer.areaOfInterest;
+        reviewer.location = location || reviewer.location;
+        reviewer.socialMediaLinks = socialMediaLinks || reviewer.socialMediaLinks;
+
+        // Save the updated reviewer
+        await reviewer.save();
+
+        res.status(200).json({ message: "Reviewer updated successfully", reviewer });
+    } catch (error) {
+        console.error("Error updating reviewer:", error);
+        res.status(500).json({ error: "Failed to update reviewer", details: error.message }); // Include error details
+    }
+});
+
+app.post('/api/reviewer/passwordchange', authenticateToken, async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+
+    try {
+        // Find the organiser by ID from the token
+        const reviewer = await reviewerModel.findById(req.user.userid);
+        if (!reviewer) {
+            return res.status(404).json({ error: "Reviewer not found" });
+        }
+
+        // Check if the old password matches
+        const isMatch = await bcrypt.compare(oldPassword, reviewer.password);
+        if (!isMatch) {
+            return res.status(401).json({ error: "Old password is incorrect" });
+        }
+
+        // Hash the new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // Update the attendee's password
+        reviewer.password = hashedPassword;
+        await reviewer.save();
+
+        res.status(200).json({ message: "Password changed successfully" });
+    } catch (error) {
+        console.error("Error changing password:", error);
+        res.status(500).json({ error: "Failed to change password" });
+    }
+});
+
+app.delete('/api/delete/reviewer-account', authenticateToken, async (req, res) => {
+    const { password } = req.body;
+
+    try {
+        // Find the speaker by ID from the token
+        const reviewer = await reviewerModel.findById(req.user.userid);
+        if (!reviewer) {
+            return res.status(404).json({ error: "Reviewer not found" });
+        }
+
+        // Check if the provided password matches
+        const isMatch = await bcrypt.compare(password, reviewer.password);
+        if (!isMatch) {
+            return res.status(401).json({ error: "Password is incorrect" });
+        }
+
+        // Delete the speaker account
+        await reviewerModel.findByIdAndDelete(req.user.userid);
+        res.status(200).json({ message: "Account deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting account:", error);
+        res.status(500).json({ error: "Failed to delete account" });
     }
 });
 

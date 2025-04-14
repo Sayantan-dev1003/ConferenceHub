@@ -9,7 +9,12 @@ const reviewerSchema = mongoose.Schema({
     affiliation: String,
     areaOfInterest: String,
     password: String,
-    paperReview: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Paper' }]
+    paperReview: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Paper' }],
+    location: { type: String },
+    socialMediaLinks: {
+        twitter: { type: String },
+        linkedin: { type: String }
+    }
 });
 
 export default mongoose.model("Reviewer", reviewerSchema);
