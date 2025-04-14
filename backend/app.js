@@ -1236,6 +1236,13 @@ app.post("/api/submit-paper", upload.single('file'), authenticateToken, async (r
             });
         }
 
+        // Add paper id to papers array field in speakerModel
+        const speaker = await speakerModel.findById(speakerId);
+        if (speaker) {
+            speaker.papers.push(newPaper._id);
+            await speaker.save();
+        }
+
         res.status(201).json({ message: "Paper submitted successfully", paper: newPaper });
     } catch (error) {
         console.error("Error submitting paper:", error);
@@ -1326,6 +1333,17 @@ app.post('/assign-reviewer/:paperId/:reviewerId', async (req, res) => {
         res.status(200).json({ message: "Reviewer assigned successfully!" });
     } catch (error) {
         console.error("Assignment Error:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
+app.get('/api/paper/submissions', authenticateToken, async (req, res) => {
+    try {
+        const papers = await speakerModel.findById(req.user.userid).populate('papers');
+        const paperDetails = await paperModel.find({ _id: { $in: papers.papers } });
+        res.status(200).json({ papers: paperDetails });
+    } catch (error) {
+        console.error("Error fetching papers with details:", error);
         res.status(500).json({ message: "Internal Server Error" });
     }
 });

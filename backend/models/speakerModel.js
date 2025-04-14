@@ -11,6 +11,7 @@ const speakerSchema = mongoose.Schema({
     areaOfInterest: { type: String },
     password: String,
     conferences: [{ type: mongoose.Schema.Types.ObjectId, ref: "Conference" }],
+    papers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Paper" }],
     location: { type: String },
     socialMediaLinks: {
         twitter: { type: String },
