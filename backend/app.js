@@ -18,6 +18,7 @@ import registrationModel from "./models/registrationModel.js"
 import invitationModel from "./models/invitationModel.js"
 import paperModel from "./models/paperModel.js";
 import reviewerModel from "./models/reviewerModel.js";
+import evaluationModel from "./models/evaluationModel.js"
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -1482,6 +1483,45 @@ app.get('/api/reviewer/history', authenticateToken, async (req, res) => {
         res.status(500).json({ error: "Failed to fetch papers" });
     }
 });
+
+app.post('/api/evaluation-submit', authenticateToken, async (req, res) => {
+    try {
+        const evaluationDetails = req.body;
+        const reviewerId = req.user.userid;
+        const evaluation = new evaluationModel({ ...evaluationDetails, reviewerId });
+        await evaluation.save();
+
+        // Update the status of the paper based on the verdict
+        const paper = await paperModel.findById(evaluationDetails.paperId);
+        if (["Strong Accept", "Accept", "Weak Accept"].includes(evaluationDetails.verdict)) {
+            paper.status = "Published";
+        } else {
+            paper.status = "Rejected";
+        }
+        await paper.save();
+
+        res.status(201).json({ message: "Evaluation submitted successfully" });
+    } catch (error) {
+        console.error("Error submitting evaluation:", error);
+        res.status(500).json({ error: "Failed to submit evaluation" });
+    }
+});
+
+app.get('/api/evaluation/details/:paperId', authenticateToken, async (req, res) => {
+    try {
+        const paperId = req.params.paperId;
+        const evaluation = await evaluationModel.findOne({ paperId });
+        if (!evaluation) {
+            return res.status(404).json({ error: "Evaluation not found" });
+        }
+        res.status(200).json(evaluation);
+    } catch (error) {
+        console.error("Error fetching evaluation details:", error);
+        res.status(500).json({ error: "Failed to fetch evaluation details" });
+    }
+});
+
+
 
 app.post("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });

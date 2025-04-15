@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';  // Importing useNavigate
 
 const criteria = [
     {
@@ -72,11 +73,12 @@ const criteria = [
     }
 ];
 
-const EvaluationForm = () => {
+const EvaluationForm = ({ paperId }) => {
     const [responses, setResponses] = useState({});
     const [comments, setComments] = useState('');
     const [results, setResults] = useState(null);
     const [step, setStep] = useState(0); // current step
+    const navigate = useNavigate();  // Initialize useNavigate hook
 
     const handleChange = (sectionKey, qIndex, value) => {
         setResponses((prev) => ({
@@ -91,7 +93,7 @@ const EvaluationForm = () => {
         );
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!allQuestionsAnswered()) return;
 
         const scoreSummary = {};
@@ -124,12 +126,35 @@ const EvaluationForm = () => {
         else if (overallPercentage >= 50) verdict = "Weak Reject";
         else verdict = "Reject";
 
-        setResults({
-            summary: scoreSummary,
-            percentage: overallPercentage,
+        const evaluationResults = {
+            score: overallPercentage,
             verdict,
-            comments
-        });
+            comments,
+            paperId
+        };
+
+        try {
+            const response = await fetch('/api/evaluation-submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(evaluationResults)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to submit evaluation');
+            }
+
+            const data = await response.json();
+            console.log(data);
+            setResults(evaluationResults);
+
+            // Navigate to the review history page after form submission
+            navigate('/review-history');
+        } catch (error) {
+            console.error('Error submitting evaluation:', error);
+        }
     };
 
     const currentCriteria = criteria[step];
@@ -205,7 +230,7 @@ const EvaluationForm = () => {
                 <div className="p-4 bg-blue-100 rounded-lg">
                     <h4 className="text-lg font-bold mb-2">Final Judgement</h4>
                     <p className="mt-4">
-                        <span className="font-semibold">Overall Score:</span> {results.percentage}%
+                        <span className="font-semibold">Overall Score:</span> {results.score}%
                     </p>
                     <p>
                         <span className="font-semibold">Verdict:</span> {results.verdict}

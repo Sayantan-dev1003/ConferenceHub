@@ -26,13 +26,35 @@ const ReviewHistory = () => {
                     }
                 });
 
+                const evaluationPromises = paperData.map(async (paper) => {
+                    try {
+                        const evaluationResponse = await axios.get(`/api/evaluation/details/${paper._id}`);
+                        return { paperId: paper._id, verdict: evaluationResponse.data.verdict, score: evaluationResponse.data.score };
+                    } catch (error) {
+                        console.error(`Error fetching evaluation details for paper ${paper._id}:`, error);
+                        return { paperId: paper._id, verdict: 'Unknown', score: 'Unknown' };
+                    }
+                });
+
                 const resolvedTitles = await Promise.all(titlePromises);
+                const resolvedEvaluations = await Promise.all(evaluationPromises);
+
                 const titleMap = {};
                 resolvedTitles.forEach(({ confId, title }) => {
                     titleMap[confId] = title;
                 });
 
+                const evaluationMap = {};
+                resolvedEvaluations.forEach(({ paperId, verdict, score }) => {
+                    evaluationMap[paperId] = { verdict, score };
+                });
+
                 setConferenceTitles(titleMap);
+                setPapers(paperData.map(paper => ({
+                    ...paper,
+                    verdict: evaluationMap[paper._id]?.verdict,
+                    score: evaluationMap[paper._id]?.score
+                })));
             } catch (error) {
                 console.error("Error fetching papers:", error);
             }
@@ -61,6 +83,8 @@ const ReviewHistory = () => {
                                 <th className='px-4 py-2 text-center text-gray-600 font-semibold'>Conference Name</th>
                                 <th className='px-4 py-2 text-center text-gray-600 font-semibold'>Submission Date</th>
                                 <th className='px-4 py-2 text-center text-gray-600 font-semibold'>Deadline Date</th>
+                                <th className='px-4 py-2 text-center text-gray-600 font-semibold'>Verdict</th>
+                                <th className='px-4 py-2 text-center text-gray-600 font-semibold'>Score</th>
                                 <th className='px-4 py-2 text-center text-gray-600 font-semibold'>Status</th>
                             </tr>
                         </thead>
@@ -85,6 +109,8 @@ const ReviewHistory = () => {
                                             year: 'numeric'
                                         })}
                                     </td>
+                                    <td className='px-4 py-2 text-center'>{paper.verdict}</td>
+                                    <td className='px-4 py-2 text-center'>{paper.score} %</td>
                                     <td className='px-4 py-2 text-center'>{paper.status}</td>
                                 </tr>
                             ))}

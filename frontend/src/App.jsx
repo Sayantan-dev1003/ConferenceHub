@@ -12,7 +12,6 @@ import RegisterEvent from "./Components/Attendee/RegisterEvent"
 
 import SpeakerDasboard from './Pages/SpeakerDasboard'
 import Sessions from "./Components/Speaker/Sessions"
-import SessionsAnalytics from "./Components/Speaker/SessionAnalytics"
 import FeedbackSpeaker from "./Components/Speaker/Feedback"
 import SettingsSpeaker from "./Components/Speaker/Settings"
 
@@ -36,7 +35,6 @@ import ViewEventSpeaker from "./Components/Speaker/ViewEventSpeaker"
 import SpeakerSubmissions from './Components/Speaker/SpeakerSubmissions'
 import PublishPaper from './Components/Speaker/PublishPaper'
 
-import ReviewerDashboard from './Pages/ReviewerDashboard'
 import AssignedPapers from './Components/Reviewer/AssignedPapers'
 import ReviewPaper from './Components/Reviewer/ReviewPaper'
 import EvaluatePaper from './Components/Reviewer/EvaluatePaper'
@@ -60,7 +58,6 @@ const App = () => {
 
         <Route path='/speaker-dashboard' element={<SpeakerDasboard />}></Route>
         <Route path='/speaker-sessions' element={<Sessions />}></Route>
-        <Route path='/session-analytics' element={<SessionsAnalytics />}></Route>
         <Route path='/speaker-submissions' element={<SpeakerSubmissions />}></Route>
         <Route path='/publish-paper' element={<PublishPaper />}></Route>
         <Route path='/feedback-reviews' element={<FeedbackSpeaker />}></Route>
@@ -84,7 +81,6 @@ const App = () => {
 
         <Route path='/paper-archives' element={<PaperArchives />}></Route>
 
-        <Route path='/reviewer-dashboard' element={<ReviewerDashboard />}></Route>
         <Route path='/assigned-papers' element={<AssignedPapers />}></Route>
         <Route path='/review-paper/:paperId' element={<ReviewPaper />}></Route>
         <Route path='/evaluate-paper/:paperId' element={<EvaluatePaper />}></Route>

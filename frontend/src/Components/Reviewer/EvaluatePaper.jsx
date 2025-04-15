@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import Sidebar4 from './SideBar4';
-import { Link } from 'react-router-dom';
 import EvaluationForm from './EvaluationForm';
+import { useParams } from 'react-router-dom';
 
 const EvaluatePapers = () => {
+    const { paperId } = useParams();
     const [selectedSection, setSelectedSection] = useState("originality");
 
     const sectionLinks = [
@@ -45,7 +46,7 @@ const EvaluatePapers = () => {
                     </ul>
 
                     <div className='w-full'>
-                        <EvaluationForm selectedSection={selectedSection} />
+                        <EvaluationForm selectedSection={selectedSection} paperId={paperId} />
                     </div>
                 </div>
             </div>

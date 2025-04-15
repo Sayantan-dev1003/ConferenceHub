@@ -8,13 +8,10 @@ const Sidebar4 = () => {
       <nav className="mt-10">
         <ul>
           <li className="my-2">
-            <Link to="/reviewer-dashboard" className="block p-2 hover:bg-gray-700 rounded">Dashboard</Link>
+            <Link to="/assigned-papers" className="block p-2 hover:bg-gray-700 rounded">Assigned Papers</Link>
           </li>
           <li className="my-2">
             <Link to="/evaluation-criteria" className="block p-2 hover:bg-gray-700 rounded">Evaluation Criteria</Link>
-          </li>
-          <li className="my-2">
-            <Link to="/assigned-papers" className="block p-2 hover:bg-gray-700 rounded">Assigned Papers</Link>
           </li>
           <li className="my-2">
             <Link to="/review-history" className="block p-2 hover:bg-gray-700 rounded">Review History</Link>

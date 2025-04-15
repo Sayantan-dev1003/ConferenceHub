@@ -48,7 +48,7 @@ const ReviewerSignup = ({ setIsSignupOpen, setIsSigninOpen }) => {
 
             setTimeout(() => {
                 setIsSignupOpen(false);
-                navigate('/reviewer-dashboard');
+                navigate('/assigned-papers');
             }, 2000);
         } catch (err) {
             console.error(err.response?.data?.message || "Registration failed!");

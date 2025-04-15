@@ -14,9 +14,6 @@ const Sidebar3 = () => {
             <Link to="/speaker-sessions" className="block p-2 hover:bg-gray-700 rounded">My Sessions</Link>
           </li>
           <li className="my-2">
-            <Link to="/session-analytics" className="block p-2 hover:bg-gray-700 rounded">Session Analytics</Link>
-          </li>
-          <li className="my-2">
             <Link to="/speaker-submissions" className="block p-2 hover:bg-gray-700 rounded">My Submissions</Link>
           </li>
           <li className="my-2">

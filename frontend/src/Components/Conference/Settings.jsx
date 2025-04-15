@@ -142,7 +142,7 @@ const SettingsSpeaker = () => {
               <div className='mb-4 flex justify-between gap-4'>
                 <div className='w-1/2'>
                   <label className='block text-gray-700'>Bio</label>
-                  <textarea name="bio" value={organiserData.bio} onChange={handleProfileChange} className='border border-gray-300 rounded-md w-full p-2' ></textarea>
+                  <textarea name="bio" rows={1} value={organiserData.bio} onChange={handleProfileChange} className='border border-gray-300 rounded-md w-full p-2' ></textarea>
                 </div>
                 <div className='w-1/2'>
                   <label className='block text-gray-700'>Location</label>

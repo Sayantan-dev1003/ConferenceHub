@@ -22,7 +22,7 @@ const ReviewerSignin = ({ setIsSignupOpen, setIsSigninOpen }) => {
             }, { withCredentials: true });
 
             setIsSigninOpen(false);
-            navigate('/reviewer-dashboard');
+            navigate('/assigned-papers');
         } catch (err) {
             setError(err.response?.data || "Invalid email or password. Please try again.");
         }

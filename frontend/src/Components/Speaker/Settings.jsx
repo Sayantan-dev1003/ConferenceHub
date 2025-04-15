@@ -131,15 +131,21 @@ const SettingsSpeaker = () => {
                 </div>
               </div>
               <div className='mb-4 flex justify-between gap-4'>
-                <div className='w-1/3'>
+                <div className='w-1/2'>
                   <label className='block text-gray-700'>Phone</label>
                   <input type='text' name='phone' value={speakerData.phone} onChange={handleProfileChange} className='border border-gray-300 rounded-md w-full p-2' />
                 </div>
-                <div className='w-1/3'>
+                <div className='w-1/2'>
                   <label className='block text-gray-700'>Affiliation</label>
                   <input type='text' name='affiliation' value={speakerData.affiliation} onChange={handleProfileChange} className='border border-gray-300 rounded-md w-full p-2' />
                 </div>
-                <div className='w-1/3'>
+              </div>
+              <div className='w-full'>
+                <label className='block text-gray-700'>Bio</label>
+                <textarea name="bio" value={speakerData.bio} onChange={handleProfileChange} className='border border-gray-300 rounded-md w-full p-2' rows={1} ></textarea>
+              </div>
+              <div className='mb-4 flex justify-between gap-4'>
+                <div className='w-1/2'>
                   <label className='block text-gray-700'>Area of Interest</label>
                   <select name='areaOfInterest' value={speakerData.areaOfInterest} onChange={handleProfileChange} className='border border-gray-300 rounded-md w-full p-2'>
                     <option value="" disabled>Select Area of Interest</option>
@@ -150,12 +156,6 @@ const SettingsSpeaker = () => {
                     <option value="Education & Learning">Education & Learning</option>
                     <option value="Arts & Culture">Arts & Culture</option>
                   </select>
-                </div>
-              </div>
-              <div className='mb-4 flex justify-between gap-4'>
-                <div className='w-1/2'>
-                  <label className='block text-gray-700'>Bio</label>
-                  <textarea name="bio" value={speakerData.bio} onChange={handleProfileChange} className='border border-gray-300 rounded-md w-full p-2' rows={1} ></textarea>
                 </div>
                 <div className='w-1/2'>
                   <label className='block text-gray-700'>Location</label>

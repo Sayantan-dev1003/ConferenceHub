@@ -141,15 +141,21 @@ const SettingsReviewer = () => {
                 </div>
               </div>
               <div className='mb-4 flex justify-between gap-4'>
-                <div className='w-1/3'>
+                <div className='w-1/2'>
                   <label className='block text-gray-700'>Phone</label>
                   <input type='text' name='phone' value={reviewerData.phone} onChange={handleProfileChange} className='border border-gray-300 rounded-md w-full p-2' />
                 </div>
-                <div className='w-1/3'>
+                <div className='w-1/2'>
                   <label className='block text-gray-700'>Affiliation</label>
                   <input type='text' name='affiliation' value={reviewerData.affiliation} onChange={handleProfileChange} className='border border-gray-300 rounded-md w-full p-2' />
                 </div>
-                <div className='w-1/3'>
+              </div>
+              <div className='mb-4 flex justify-between gap-4'>
+                <div className='w-1/2'>
+                  <label className='block text-gray-700'>Location</label>
+                  <input type='text' name='location' value={reviewerData.location} onChange={handleProfileChange} className='border border-gray-300 rounded-md w-full p-2' />
+                </div>
+                <div className='w-1/2'>
                   <label className='block text-gray-700'>Area of Interest</label>
                   <select name='areaOfInterest' value={reviewerData.areaOfInterest} onChange={handleProfileChange} className='border border-gray-300 rounded-md w-full p-2'>
                     <option value="" disabled>Select Area of Interest</option>
@@ -160,12 +166,6 @@ const SettingsReviewer = () => {
                     <option value="Education & Learning">Education & Learning</option>
                     <option value="Arts & Culture">Arts & Culture</option>
                   </select>
-                </div>
-              </div>
-              <div className='mb-4 flex justify-between gap-4'>
-                <div className='w-1/2'>
-                  <label className='block text-gray-700'>Location</label>
-                  <input type='text' name='location' value={reviewerData.location} onChange={handleProfileChange} className='border border-gray-300 rounded-md w-full p-2' />
                 </div>
               </div>
               <div className='mb-4'>
