@@ -1432,6 +1432,39 @@ app.delete('/api/delete/reviewer-account', authenticateToken, async (req, res) =
     }
 });
 
+app.get('/api/reviewer/assigned-papers', authenticateToken, async (req, res) => {
+    try {
+        const reviewer = await reviewerModel.findById(req.user.userid).populate('paperReview');
+        if (!reviewer) {
+            return res.status(404).json({ error: "Reviewer not found" });
+        }
+
+        const papersUnderReview = await paperModel.find({
+            status: "Under Review",
+            _id: { $in: reviewer.paperReview }
+        });
+
+        res.status(200).json({ papers: papersUnderReview });
+    } catch (error) {
+        console.error("Error fetching papers:", error);
+        res.status(500).json({ error: "Failed to fetch papers" });
+    }
+});
+
+app.get('/api/reviewer/paper-review/:paperId', authenticateToken, async (req, res) => {
+    try {
+        const paperId = req.params.paperId;
+        const paper = await paperModel.findById(paperId);
+        if (!paper) {
+            return res.status(404).json({ error: "Paper not found" });
+        }
+        res.status(200).json({ papers: [paper] });
+    } catch (error) {
+        console.error("Error fetching paper:", error);
+        res.status(500).json({ error: "Failed to fetch paper" });
+    }
+});
+
 app.post("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
     res.redirect("/");

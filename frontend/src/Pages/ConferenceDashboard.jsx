@@ -88,6 +88,8 @@ const ConferenceDashboard = () => {
                   <p className="text-gray-500 text-xs">Paper Title: {message.title}</p>
                   <p className="text-gray-500 text-xs">Conference: {conferenceName}</p>
                   <p className="text-gray-500 text-xs">Submitted by: {speakerName}</p>
+                  <p className="text-gray-500 text-xs">Submitted on: {new Date(message.submissionDate).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}</p>
+                  <p className="text-gray-500 text-xs">Review deadline: {new Date(message.deadlineDate).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', year: 'numeric', month: 'long', day: 'numeric' })} 11:59:59</p>
                   <div className='flex items-end justify-end mt-4'>
                     {console.log(message)}
                     <button
