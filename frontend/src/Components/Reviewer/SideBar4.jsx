@@ -14,9 +14,6 @@ const Sidebar4 = () => {
             <Link to="/assigned-papers" className="block p-2 hover:bg-gray-700 rounded">Assigned Papers</Link>
           </li>
           <li className="my-2">
-            <Link to="/review-submissions" className="block p-2 hover:bg-gray-700 rounded">Review Submissions</Link>
-          </li>
-          <li className="my-2">
             <Link to="/review-history" className="block p-2 hover:bg-gray-700 rounded">Review History</Link>
           </li>
           <li className="my-2">

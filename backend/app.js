@@ -1465,6 +1465,24 @@ app.get('/api/reviewer/paper-review/:paperId', authenticateToken, async (req, re
     }
 });
 
+app.get('/api/reviewer/history', authenticateToken, async (req, res) => {
+    try {
+        const reviewer = await reviewerModel.findById(req.user.userid).populate('paperReview');
+        if (!reviewer) {
+            return res.status(404).json({ error: "Reviewer not found" });
+        }
+
+        const papersHistory = await paperModel.find({
+            _id: { $in: reviewer.paperReview }
+        });
+
+        res.status(200).json({ papers: papersHistory });
+    } catch (error) {
+        console.error("Error fetching papers:", error);
+        res.status(500).json({ error: "Failed to fetch papers" });
+    }
+});
+
 app.post("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
     res.redirect("/");
