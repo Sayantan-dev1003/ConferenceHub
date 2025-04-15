@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import Sidebar4 from './SideBar4'
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const AssignedPapers = () => {
 
     const [papers, setPapers] = useState([]);
     const [conferenceNames, setConferenceNames] = useState({});
     const [speakerNames, setSpeakerNames] = useState({});
-    const { paperId } = useParams(); // Using useParams to get paperId from the URL
+    const { paperId } = useParams();
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchPapers = async () => {
@@ -114,7 +116,10 @@ const AssignedPapers = () => {
                                     <h3 className="text-lg font-semibold montserrat">Abstract</h3>
                                     <p className="text-gray-500 text-sm">{paper.abstract}</p>
                                 </div>
-                                <button onClick={() => downloadPaper(paper)} className='bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105 transition-transform duration-300 shadow-lg text-white text-base px-[1rem] py-2 rounded-lg font-medium cursor-pointer'>Download Paper</button>
+                                <div className='space-x-5'>
+                                    <button onClick={() => downloadPaper(paper)} className='bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105 transition-transform duration-300 shadow-lg text-white text-base px-[1rem] py-2 rounded-lg font-medium cursor-pointer'>Download Paper</button>
+                                    <button onClick={() => navigate(`/evaluate-paper/${paper._id}`)} className='bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105 transition-transform duration-300 shadow-lg text-white text-base px-[1rem] py-2 rounded-lg font-medium cursor-pointer'>Start Evaluation</button>
+                                </div>
                             </div>
                         ))}
                     </div>

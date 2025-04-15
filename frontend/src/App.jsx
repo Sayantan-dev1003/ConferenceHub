@@ -39,6 +39,7 @@ import PublishPaper from './Components/Speaker/PublishPaper'
 import ReviewerDashboard from './Pages/ReviewerDashboard'
 import AssignedPapers from './Components/Reviewer/AssignedPapers'
 import ReviewPaper from './Components/Reviewer/ReviewPaper'
+import EvaluatePaper from './Components/Reviewer/EvaluatePaper'
 import ReviewHistory from './Components/Reviewer/ReviewHistory'
 import EvaluationCriteria from './Components/Reviewer/EvaluationCriteria'
 import SettingsReviewer from './Components/Reviewer/Settings'
@@ -86,6 +87,7 @@ const App = () => {
         <Route path='/reviewer-dashboard' element={<ReviewerDashboard />}></Route>
         <Route path='/assigned-papers' element={<AssignedPapers />}></Route>
         <Route path='/review-paper/:paperId' element={<ReviewPaper />}></Route>
+        <Route path='/evaluate-paper/:paperId' element={<EvaluatePaper />}></Route>
         <Route path='/review-history' element={<ReviewHistory />}></Route>
         <Route path='/evaluation-criteria' element={<EvaluationCriteria />}></Route>
         <Route path='/reviewer-settings' element={<SettingsReviewer />}></Route>
