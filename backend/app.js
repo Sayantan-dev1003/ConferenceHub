@@ -1521,16 +1521,20 @@ app.get('/api/evaluation/details/:paperId', authenticateToken, async (req, res) 
     }
 });
 
-
-
 app.post("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
     res.redirect("/");
 });
 
 // Catch-all route to serve the frontend
-app.get("*", authenticateToken, (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+app.get("*", (req, res) => {
+    if (req.path !== "/paper-archives") {
+        authenticateToken(req, res, () => {
+            res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+        });
+    } else {
+        res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+    }
 });
 
 // Start the server
