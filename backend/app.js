@@ -1520,6 +1520,45 @@ app.get('/api/evaluation/details/:paperId', authenticateToken, async (req, res) 
     }
 });
 
+app.get('/api/archives/papers', async (req, res) => {
+    try {
+        // Fetch published papers from the database
+        const publishedPapers = await paperModel.find({ status: "Published" });
+
+        // Check if any published papers were found
+        if (!publishedPapers || publishedPapers.length === 0) {
+            return res.status(404).json({ error: "No published papers found" });
+        }
+
+        // Extract speaker and conference IDs from the published papers
+        const speakerIds = publishedPapers.map(paper => paper.speakerId);
+        const conferenceIds = publishedPapers.map(paper => paper.conferenceId);
+
+        // Fetch speakers and conferences in parallel
+        const [speakers, conferences] = await Promise.all([
+            speakerModel.find({ _id: { $in: speakerIds } }),
+            conferenceModel.find({ _id: { $in: conferenceIds } })
+        ]);
+
+        // Map the published papers to include speaker and conference names
+        const papersWithDetails = publishedPapers.map(paper => {
+            const speaker = speakers.find(speaker => String(speaker._id) === String(paper.speakerId));
+            const conference = conferences.find(conference => String(conference._id) === String(paper.conferenceId));
+
+            return {
+                ...paper.toObject(), // Convert Mongoose document to plain object
+                speakerName: speaker ? speaker.fullname : "Unknown Speaker", // Handle case where speaker is not found
+                conferenceName: conference ? conference.title : "Unknown Conference" // Handle case where conference is not found
+            };
+        });
+
+        res.status(200).json(papersWithDetails);
+    } catch (error) {
+        console.error("Error fetching published papers:", error);
+        res.status(500).json({ error: "Failed to fetch published papers" });
+    }
+});
+
 app.post("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
     res.redirect("/");

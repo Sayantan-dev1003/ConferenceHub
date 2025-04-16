@@ -106,7 +106,7 @@ const ExploreEvents = () => {
                         {new Date() < new Date(conference.registrationDeadline) ? 'LIVE' : 'OVER'}
                       </p>
                     </div>
-                    <div className='flex w-full gap-4 text-base mt-4'>
+                    <div className='flex w-full gap-4 text-sm mt-4'>
                       <p className="text-gray-400 text-right">
                         <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
                         {new Date(conference.startDate).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })} -
