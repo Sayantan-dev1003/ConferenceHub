@@ -145,7 +145,6 @@ io.on('connection', (socket) => {
 app.post("/register", async (req, res) => {
     const { fullname, email, phone, affiliation, password, userType, areaOfInterest, bio } = req.body;
 
-    // Ensure `userType` is valid
     if (!userType || (userType !== "attendee" && userType !== "speaker")) {
         return res.status(400).json({ error: "Invalid user type" });
     }
@@ -161,11 +160,11 @@ app.post("/register", async (req, res) => {
 
     let user;
     if (userType === "attendee") {
-        if (!Array.isArray(areaOfInterest)) {
-            return res.status(400).json({ error: "areaOfInterest must be an array" });
-        }
         user = await attendeeModel.create({ fullname, email, phone, affiliation, password: hashedPassword, areaOfInterest });
     } else {
+        if (!bio) {
+            return res.status(400).json({ error: "Bio is required for speaker registration" });
+        }
         user = await speakerModel.create({ fullname, email, phone, affiliation, password: hashedPassword, bio, areaOfInterest });
     }
 
@@ -526,7 +525,7 @@ app.get("/api/register/participant/:participantId", async (req, res) => {
 
 // Get Attendee Details
 app.get("/attendee", authenticateToken, async (req, res) => {
-    if (req.user.role !== "attendee") return res.sendStatus(403);
+    // if (req.user.role !== "attendee") return res.sendStatus(403);
     const attendee = await attendeeModel.findById(req.user.userid);
     if (!attendee) return res.sendStatus(404);
     res.json(attendee);

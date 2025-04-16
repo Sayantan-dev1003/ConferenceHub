@@ -48,16 +48,17 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
             payload = {
                 ...formDataAttendee,
                 userType,
-                areaOfInterest: formDataAttendee.areaOfInterest,
+                // areaOfInterest: formDataAttendee.areaOfInterest,
             };
         } else {
             payload = {
                 ...formDataSpeaker,
                 userType,
                 bio: formDataSpeaker.bio,
-                areaOfInterest: formDataSpeaker.areaOfInterest,
+                // areaOfInterest: formDataSpeaker.areaOfInterest,
             };
         }
+        console.log("Payload: ", payload);
 
         try {
             const response = await axios.post("/register", payload, {
@@ -73,6 +74,7 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                     affiliation: "",
                     areaOfInterest: "",
                     password: "",
+                    userType: "attendee"
                 });
                 setIsSignupOpen(false);
                 navigate('/attendee-dashboard');
@@ -85,6 +87,7 @@ const Signup = ({ setIsSignupOpen, setIsSigninOpen }) => {
                     bio: "",
                     areaOfInterest: "",
                     password: "",
+                    userType: "speaker"
                 });
                 setIsSignupOpen(false);
                 navigate('/speaker-dashboard');
